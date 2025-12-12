@@ -1,0 +1,20 @@
+{
+    "version": "1.0.0",
+    "description": "A simple hello script",
+    "homepage": "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket",
+    "license": "MIT",
+    "depends": "python",
+    "url": [
+        "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/main/hello.py",
+        "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/main/hello.bat"
+    ],
+    "bin": "hello.bat",
+    "checkver": "github",
+    "autoupdate": {
+        "url": [
+            "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/main/hello.py",
+            "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/main/hello.bat"
+        ]
+    }
+}
+
