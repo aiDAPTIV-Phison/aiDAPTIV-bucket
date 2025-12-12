@@ -3,18 +3,30 @@
     "description": "A simple hello script",
     "homepage": "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket",
     "license": "MIT",
-    "depends": "python",
-    "url": [
-        "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/main/hello.py",
-        "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/main/hello.bat"
-    ],
+    "architecture": {
+        "64bit": {
+            "url": [
+                "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/main/hello.py",
+                "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/main/hello.bat"
+            ],
+            "hash": [
+                "9e2339cd8185cf17ac06378faeee2c2f72cabdf94bea5d3262335caefd840374",
+                "1378ff739fedd28601abf2beff747ec13d5af8c3b19e8345d1aa4634f68d99f5"
+            ]
+        }
+    },
     "bin": "hello.bat",
+    "depends": "python",
     "checkver": "github",
     "autoupdate": {
-        "url": [
-            "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/main/hello.py",
-            "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/main/hello.bat"
-        ]
+        "architecture": {
+            "64bit": {
+                "url": [
+                    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/main/hello.py",
+                    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/main/hello.bat"
+                ]
+            }
+        }
     }
 }
 
