@@ -1,32 +1,24 @@
 {
-    "version": "1.0.1",
-    "description": "A simple hello script",
-    "homepage": "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket",
-    "url": [
-        "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/main/hello.py",
-        "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/main/hello.bat"
-    ],
-    "bin": "hello.bat",
-    "depends": "python",
-    "pre_install": [
-        "Write-Host 'Pre-install: Checking Python installation...' -ForegroundColor Yellow",
-        "if (-not (Get-Command python -ErrorAction SilentlyContinue)) { throw 'Python is required but not found' }"
-    ],
-    "installer": {
-        "script": [
-            "Write-Host 'Installing hello script...' -ForegroundColor Green",
-            "# Files are automatically downloaded from url, no additional installation needed"
-        ]
-    },
-    "post_install": [
-        "Write-Host 'Post-install: Verifying installation...' -ForegroundColor Green",
-        "if (Test-Path \"$dir\\hello.bat\") { Write-Host 'Installation successful!' -ForegroundColor Green }"
-    ],
-    "pre_uninstall": [
-        "Write-Host 'Pre-uninstall: Preparing to remove hello script...' -ForegroundColor Yellow"
-    ],
-    "post_uninstall": [
-        "Write-Host 'Post-uninstall: Cleanup completed.' -ForegroundColor Green"
-    ]
+  "version": "1.0.1",
+  "description": "A simple hello script",
+  "homepage": "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket",
+  "url": [
+    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/main/hello.py",
+    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/main/hello.bat"
+  ],
+  "bin": "hello.bat",
+  "depends": "python",
+  "pre_install": [
+    "Write-Host 'Pre-install: Checking Python installation...' -ForegroundColor Yellow",
+    "if (-not (Get-Command python -ErrorAction SilentlyContinue)) { throw 'Python is required but not found' }"
+  ],
+  "installer": {
+    "script": ["Write-Host 'Installing hello script...' -ForegroundColor Green", "& \"$dir\\hello.bat\""]
+  },
+  "post_install": [
+    "Write-Host 'Post-install: Verifying installation...' -ForegroundColor Green",
+    "if (Test-Path \"$dir\\hello.bat\") { Write-Host 'Installation successful!' -ForegroundColor Green }"
+  ],
+  "pre_uninstall": ["Write-Host 'Pre-uninstall: Preparing to remove hello script...' -ForegroundColor Yellow"],
+  "post_uninstall": ["Write-Host 'Post-uninstall: Cleanup completed.' -ForegroundColor Green"]
 }
-
