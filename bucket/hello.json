@@ -2,7 +2,7 @@
   "version": "1.0.1",
   "description": "A simple hello script",
   "homepage": "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket",
-  "url": "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/blob/main/hello.zip",
+  "url": "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/hello.zip",
   "bin": "hello.bat",
   "depends": "python",
   "pre_install": [
