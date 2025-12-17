@@ -1,0 +1,19 @@
+{
+  "version": "1.0.0",
+  "description": "Open WebUI is an extensible, feature-rich, and user-friendly self-hosted AI platform designed to operate entirely offline. It supports various LLM runners like Ollama and OpenAI-compatible APIs, with built-in inference engine for RAG, making it a powerful AI deployment solution.",
+  "homepage": "https://github.com/open-webui/open-webui",
+  "url": [
+    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/open_webui/start.ps1",
+    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/open_webui/stop.ps1"
+  ],
+  "depends": "python",
+  "installer": {
+    "script": [
+      "git clone https://github.com/open-webui/open-webui.git",
+      "python -m venv \"$dir\\venv_open_webui\"",
+      "& \"$dir\\venv_open_webui\\Scripts\\activate.ps1\"",
+      "python -m pip install --upgrade pip",
+      "pip install open-webui"
+    ]
+  }
+}
