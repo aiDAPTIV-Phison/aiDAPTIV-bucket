@@ -6,7 +6,7 @@
     "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/open_webui/start.ps1",
     "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/open_webui/stop.ps1"
   ],
-  "depends": "python",
+  "depends": "python311",
   "installer": {
     "script": [
       "cd \"$dir\"",
