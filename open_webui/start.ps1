@@ -33,3 +33,6 @@ else {
     -RedirectStandardOutput $stdoutLog `
     -RedirectStandardError $stderrLog
 }
+
+# Open browser and navigate to 127.0.0.1:8080
+Start-Process "http://127.0.0.1:8080"
