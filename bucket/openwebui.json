@@ -9,11 +9,13 @@
   "depends": "python",
   "installer": {
     "script": [
+      "cd \"$dir\"",
       "git clone https://github.com/open-webui/open-webui.git",
       "python -m venv \"$dir\\venv_open_webui\"",
       "& \"$dir\\venv_open_webui\\Scripts\\activate.ps1\"",
       "python -m pip install --upgrade pip",
       "pip install open-webui"
     ]
-  }
+  },
+  "pre_uninstall": ["cd \"$dir\"", ".\\stop.ps1"]
 }
