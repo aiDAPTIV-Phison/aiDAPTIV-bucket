@@ -1,19 +1,15 @@
 {
   "version": "1.0.0",
   "description": "A privacy-first AI meeting assistant that captures, transcribes, and summarizes meetings entirely on your infrastructure. Built by expert AI engineers passionate about data sovereignty and open source solutions. Perfect for enterprises that need advanced meeting intelligence without compromising on privacy, compliance, or control.",
-  "homepage": "https://github.com/Zackriya-Solutions/meeting-minutes",
+  "homepage": "https://github.com/aiDAPTIV-Phison/aiDAPTIV-Integration-meeting-minutes",
   "url": [
     "https://phison-software-bucket.s3.ap-northeast-1.amazonaws.com/aiDAPTIV_Application/Meetily/meetily_0.1.1_x64-setup.exe",
     "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/meetily/start.ps1",
     "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/meetily/stop.ps1",
     "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/meetily/status.ps1"
   ],
-  "depends": "python",
   "installer": {
     "script": ["cd \"$dir\"", ".\\meetily_0.1.1_x64-setup.exe /S  /D=\"$dir\\meetily\""]
   },
-  "pre_uninstall": ["cd \"$dir\"", ".\\stop.ps1"],
-  "uninstaller": {
-    "script": ["cd \"$dir\"", ".\\meetily_0.1.1_x64-setup.exe /S  /D=\"$dir\\meetily\""]
-  }
+  "pre_uninstall": ["cd \"$dir\"", ".\\stop.ps1", ".\\meetily\\uninstall.exe /S"]
 }
