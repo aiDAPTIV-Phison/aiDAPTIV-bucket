@@ -1,0 +1,7 @@
+LLM_URL=http://vllm.phison.com/Qwen2.5-72B-Instruct-AWQ/v1
+EMBEDDING_URL=vllm.phison.com/Qodo-Embed-1-7B/v1
+API_PORT=18299
+MAX_TOKENS_PER_GROUP=10000
+LLM_GGUF=Llama-3.2-3B-Instruct-Q3_K_XL.gguf
+LLM_MODEL_DIR=$dir\model
+PORT=8080

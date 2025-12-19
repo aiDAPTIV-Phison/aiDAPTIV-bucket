@@ -1,43 +1,16 @@
 $ErrorActionPreference = 'Stop'
 
-$venvDir = Join-Path $PSScriptRoot 'venv_open_webui'
-$venvPy = Join-Path $venvDir 'Scripts\python.exe'
-$venvCli = Join-Path $venvDir 'Scripts\open-webui.exe'
+# Stop processes by matching command line patterns
 
-function Stop-ProcessesByExecutablePath {
+function Stop-ProcessesByCommandLine {
   param(
     [Parameter(Mandatory = $true)]
-    [string]$ExecutablePath
+    [string]$Pattern
   )
-
-  if (-not (Test-Path $ExecutablePath)) {
-    return @()
-  }
-
-  $procs = Get-CimInstance Win32_Process |
-    Where-Object { $_.ExecutablePath -and ($_.ExecutablePath -ieq $ExecutablePath) }
-
-  foreach ($p in $procs) {
-    Stop-Process -Id $p.ProcessId -Force -ErrorAction SilentlyContinue
-  }
-
-  return $procs
-}
-
-function Stop-PythonOpenWebUIFallback {
-  param(
-    [Parameter(Mandatory = $true)]
-    [string]$PythonPath
-  )
-
-  if (-not (Test-Path $PythonPath)) {
-    return @()
-  }
 
   $procs = Get-CimInstance Win32_Process |
     Where-Object {
-      $_.ExecutablePath -and ($_.ExecutablePath -ieq $PythonPath) -and
-      $_.CommandLine -and ($_.CommandLine -match ' -m\s+open_webui\s+serve(\s|$)')
+      $_.CommandLine -and ($_.CommandLine -match $Pattern)
     }
 
   foreach ($p in $procs) {
@@ -47,18 +20,34 @@ function Stop-PythonOpenWebUIFallback {
   return $procs
 }
 
-# 1) Prefer stopping the exact open-webui.exe started by start.ps1
-$stoppedCli = Stop-ProcessesByExecutablePath -ExecutablePath $venvCli
-
-# 2) Fallback: if start.ps1 used python -m open_webui serve, stop that too
-$stoppedPy = Stop-PythonOpenWebUIFallback -PythonPath $venvPy
-
-# 3) As a last resort, stop any remaining open-webui process by name
-try {
-  Stop-Process -Name 'open-webui' -Force -ErrorAction SilentlyContinue
-} catch {
-  # ignore
+# Stop Open WebUI Backend (uvicorn)
+Write-Host '[INFO] Stopping Open WebUI Backend...'
+$stoppedBackend = Stop-ProcessesByCommandLine -Pattern 'uvicorn.*open_webui\.main:app'
+if ($stoppedBackend.Count -eq 0) {
+    # Also try to stop by checking for uvicorn in command line
+    $stoppedBackend = Stop-ProcessesByCommandLine -Pattern 'uvicorn'
 }
 
-Write-Host ("Stopped processes: open-webui.exe={0}, python(open_webui serve)={1}" -f $stoppedCli.Count, $stoppedPy.Count)
+# Stop KM Service (api.py)
+Write-Host '[INFO] Stopping KM Service...'
+$stoppedKM = Stop-ProcessesByCommandLine -Pattern 'uv run.*api\.py'
+if ($stoppedKM.Count -eq 0) {
+    # Also try to stop by checking for api.py in command line
+    $stoppedKM = Stop-ProcessesByCommandLine -Pattern 'api\.py'
+}
+
+# Stop any remaining processes by name
+try {
+    Stop-Process -Name 'uvicorn' -Force -ErrorAction SilentlyContinue
+} catch {
+    # ignore
+}
+
+try {
+    Stop-Process -Name 'python' -Force -ErrorAction SilentlyContinue
+} catch {
+    # ignore - this might stop other python processes too, but it's a fallback
+}
+
+Write-Host ("Stopped processes: Open WebUI Backend={0}, KM Service={1}" -f $stoppedBackend.Count, $stoppedKM.Count)
 
