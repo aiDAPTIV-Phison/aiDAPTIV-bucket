@@ -11,5 +11,5 @@
   "installer": {
     "script": ["cd \"$dir\"", ".\\meetily_0.1.1_x64-setup.exe /S  /D=\"$dir\\meetily\""]
   },
-  "pre_uninstall": ["cd \"$dir\"", ".\\stop.ps1", ".\\meetily\\uninstall.exe /S"]
+  "pre_uninstall": ["\"$dir\"\\stop.ps1", "\"$dir\"\\meetily\\uninstall.exe /S"]
 }
