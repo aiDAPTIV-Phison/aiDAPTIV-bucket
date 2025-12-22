@@ -4,12 +4,20 @@
   "homepage": "https://github.com/aiDAPTIV-Phison/aiDAPTIV-Integration-meeting-minutes",
   "url": [
     "https://phison-software-bucket.s3.ap-northeast-1.amazonaws.com/aiDAPTIV_Application/Meetily/meetily_0.1.1_x64-setup.exe",
+    "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin",
     "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/meetily/start.ps1",
     "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/meetily/stop.ps1",
     "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/meetily/status.ps1"
   ],
   "installer": {
-    "script": ["cd \"$dir\"", ".\\meetily_0.1.1_x64-setup.exe /S  /D=\"$dir\\meetily\""]
+    "script": ["& \"$dir\\meetily_0.1.1_x64-setup.exe\" /S /D=\"$dir\\meetily\""]
   },
-  "pre_uninstall": ["\"$dir\"\\stop.ps1", "\"$dir\"\\meetily\\uninstall.exe /S"]
+  "post_install": [
+    "New-Item -ItemType Directory -Force -Path \"$env:APPDATA\\com.meetily.ai\\models\" | Out-Null",
+    "Copy-Item -Path \"$dir\\ggml-base.bin\" -Destination \"$env:APPDATA\\com.meetily.ai\\ggml-base.bin\""
+  ],
+  "pre_uninstall": [
+    "if (Test-Path \"$dir\\stop.ps1\") { & \"$dir\\stop.ps1\" }",
+    "if (Test-Path \"$dir\\meetily\\uninstall.exe\") { & \"$dir\\meetily\\uninstall.exe\" /S }"
+  ]
 }
