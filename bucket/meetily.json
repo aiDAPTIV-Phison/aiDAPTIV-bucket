@@ -17,6 +17,8 @@
     "Copy-Item -Path \"$dir\\ggml-base.bin\" -Destination \"$env:APPDATA\\com.meetily.ai\\ggml-base.bin\""
   ],
   "pre_uninstall": [
-    "if (Test-Path \"$dir\\meetily\\uninstall.exe\") { Start-Process -Wait -FilePath \"$dir\\meetily\\uninstall.exe\" -ArgumentList '/S' }"
+    "if (Test-Path \"$dir\\stop.ps1\") { & \"$dir\\stop.ps1\" | Out-Null; Start-Sleep -Seconds 2 }",
+    "if (Test-Path \"$dir\\meetily\\uninstall.exe\") { Start-Process -Wait -FilePath \"$dir\\meetily\\uninstall.exe\" -ArgumentList '/S' }",
+    "if (Test-Path \"$dir\\status.ps1\") { Remove-Item -Path \"$dir\\status.ps1\" -Force -ErrorAction SilentlyContinue }"
   ]
 }
