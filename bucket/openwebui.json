@@ -7,8 +7,7 @@
           "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/open_webui/config.txt",
           "http://192.168.54.46:18301/open-webui.zip"],
   "depends": [
-    "python311",
-    "googlechrome"
+    "python311"
   ],
   "installer": {
     "script": [
@@ -16,6 +15,21 @@
       "# Scoop automatically extracts ZIP files, so we need to detect the actual structure",
       "$openWebuiDir = Join-Path $dir 'open-webui'",
       "$zipDest = Join-Path $dir 'open-webui.zip'",
+      "",
+      "# Check and install uv (corresponding to setup_and_run.bat 229-254)",
+      "Write-Host '[INFO] Checking for uv...'",
+      "$uvCheck = Get-Command uv -ErrorAction SilentlyContinue",
+      "if (-not $uvCheck) {",
+      "    Write-Host '[INFO] uv not found, installing uv...'",
+      "    python -m pip install uv",
+      "    if ($LASTEXITCODE -ne 0) {",
+      "        Write-Error 'Failed to install uv'",
+      "        exit 1",
+      "    }",
+      "    Write-Host '[INFO] uv installed successfully'",
+      "} else {",
+      "    Write-Host '[INFO] uv is already installed'",
+      "}",
       "",
       "# 2. Create venv for backend (corresponding to setup_and_run.bat 256-307)",
       "Write-Host '[INFO] Setting up backend virtual environment...'",

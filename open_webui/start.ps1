@@ -146,24 +146,8 @@ while ($attempt -lt $maxAttempts -and -not $isHealthy) {
         if ($response.StatusCode -eq 200 -and $response2.StatusCode -eq 200) {
             $isHealthy = $true
             Write-Host "Open WebUI is ready!"
-            
-            # Open browser with Google Chrome
-            $chromePath = (Get-Command chrome -ErrorAction SilentlyContinue).Source
-            if (-not $chromePath) {
-                $chromePath = "$env:ProgramFiles\Google\Chrome\Application\chrome.exe"
-                if (-not (Test-Path $chromePath)) {
-                    $programFilesX86 = [Environment]::GetFolderPath('ProgramFilesX86')
-                    $chromePath = Join-Path $programFilesX86 "Google\Chrome\Application\chrome.exe"
-                }
-            }
-            
-            if (Test-Path $chromePath) {
-                Start-Process -FilePath $chromePath -ArgumentList "http://127.0.0.1:$port"
-                Write-Host "Browser opened successfully."
-            }
-            else {
-                Write-Warning "Google Chrome not found. Please open http://127.0.0.1:$port manually."
-            }
+            Start-Process "http://127.0.0.1:$port"
+            Write-Host "Browser opened successfully."
         }
     }
     catch {
