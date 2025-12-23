@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A privacy-first AI meeting assistant that captures, transcribes, and summarizes meetings entirely on your infrastructure. Built by expert AI engineers passionate about data sovereignty and open source solutions. Perfect for enterprises that need advanced meeting intelligence without compromising on privacy, compliance, or control.",
   "homepage": "https://github.com/aiDAPTIV-Phison/aiDAPTIV-Integration-meeting-minutes",
   "url": [
@@ -7,14 +7,16 @@
     "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin",
     "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/meetily/start.ps1",
     "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/meetily/stop.ps1",
-    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/meetily/status.ps1"
+    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/meetily/status.ps1",
+    "http://192.168.54.46:18301/meetily_kvcache.zip"
   ],
   "installer": {
     "script": ["& \"$dir\\meetily_0.1.1_x64-setup.exe\" /S /D=\"$dir\\meetily\""]
   },
   "post_install": [
     "New-Item -ItemType Directory -Force -Path \"$env:APPDATA\\com.meetily.ai\\models\" | Out-Null",
-    "Copy-Item -Path \"$dir\\ggml-base.bin\" -Destination \"$env:APPDATA\\com.meetily.ai\\ggml-base.bin\""
+    "Copy-Item -Path \"$dir\\ggml-base.bin\" -Destination \"$env:APPDATA\\com.meetily.ai\\ggml-base.bin\"",
+    "if ((Test-Path 'R:\\inference_phison') -and (Test-Path \"$dir\\meetily_kvcache\")) { Move-Item -Path \"$dir\\meetily_kvcache\" -Destination 'R:\\inference_phison\\meetily_kvcache' -Force }"
   ],
   "pre_uninstall": [
     "if (Test-Path \"$dir\\stop.ps1\") { & \"$dir\\stop.ps1\" | Out-Null; Start-Sleep -Seconds 2 }",
