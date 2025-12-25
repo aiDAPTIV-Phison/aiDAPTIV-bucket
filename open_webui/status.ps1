@@ -1,9 +1,18 @@
 $ErrorActionPreference = 'Stop'
 
-# Check if meetily process exists by name
+# Check if port 8080 is accessible
 try {
-  $procs = Get-Process -Name 'open-webui' -ErrorAction SilentlyContinue
-  $isRunning = ($procs -ne $null -and $procs.Count -gt 0)
+  $tcpClient = New-Object System.Net.Sockets.TcpClient
+  $connection = $tcpClient.BeginConnect('localhost', 8080, $null, $null)
+  $wait = $connection.AsyncWaitHandle.WaitOne(1000, $false)
+  
+  if ($wait) {
+    $tcpClient.EndConnect($connection)
+    $isRunning = $true
+  } else {
+    $isRunning = $false
+  }
+  $tcpClient.Close()
 } catch {
   $isRunning = $false
 }
