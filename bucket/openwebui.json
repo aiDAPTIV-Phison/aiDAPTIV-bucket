@@ -29,9 +29,9 @@
   },
   "post_install": [
     "Write-Host '[INFO] Testing Open WebUI installation...'; Write-Host '[INFO] Starting Open WebUI...'; & (Join-Path $dir 'start.ps1')",
-    "Write-Host '[INFO] Waiting for service to start...'; $maxAttempts = 600; $attempt = 0; $isRunning = $false",
-    "while ($attempt -lt $maxAttempts -and -not $isRunning) { Start-Sleep -Seconds 1; $attempt++; try { $statusOutput = & (Join-Path $dir 'status.ps1') 2>&1 | Out-String; $statusOutput = $statusOutput.Trim(); if ($statusOutput) { $statusJson = $statusOutput | ConvertFrom-Json -ErrorAction Stop; if ($statusJson.PSObject.Properties['status'] -and $statusJson.status -eq 1) { $isRunning = $true; Write-Host \"[SUCCESS] Open WebUI is running! (attempt $attempt/$maxAttempts)\" } elseif ($attempt % 30 -eq 0) { Write-Host \"[INFO] Still waiting... (attempt $attempt/$maxAttempts, status=$($statusJson.status))\" } } } catch { if ($attempt % 60 -eq 0) { Write-Host \"[DEBUG] Waiting for service... (attempt $attempt/$maxAttempts)\" } } }",
-    "if (-not $isRunning) { Write-Warning 'Service did not start within 600 seconds, but installation will continue' } else { Write-Host '[INFO] Service started successfully, now stopping...'; & (Join-Path $dir 'stop.ps1'); Write-Host '[INFO] Service stopped' }",
+    "Write-Host '[INFO] Waiting for service to start...'; $isRunning = $false",
+    "while (-not $isRunning) { Start-Sleep -Seconds 1; try { $statusOutput = & (Join-Path $dir 'status.ps1') 2>&1 | Out-String; $statusOutput = $statusOutput.Trim(); if ($statusOutput) { $statusJson = $statusOutput | ConvertFrom-Json -ErrorAction Stop; if ($statusJson.PSObject.Properties['status'] -and $statusJson.status -eq 1) { $isRunning = $true; Write-Host '[SUCCESS] Open WebUI is running!' } } } catch { } }",
+    "Write-Host '[INFO] Service started successfully, now stopping...'; & (Join-Path $dir 'stop.ps1'); Write-Host '[INFO] Service stopped'",
     "Write-Host '[INFO] Installation test completed'"
   ],
   "pre_uninstall": [
