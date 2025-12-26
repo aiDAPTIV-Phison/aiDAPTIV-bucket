@@ -8,7 +8,7 @@ try {
   
   if ($wait) {
     $tcpClient.EndConnect($connection)
-    $isRunning = $true
+    $isRunning =$true
   } else {
     $isRunning = $false
   }

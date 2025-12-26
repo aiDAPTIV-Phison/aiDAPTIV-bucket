@@ -7,7 +7,9 @@
     "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/open_webui/stop.ps1",
     "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/open_webui/status.ps1",
     "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/open_webui/config.txt",
-    "http://192.168.54.46:18301/open-webui.zip"
+    "http://192.168.54.46:18301/open-webui.zip",
+    "http://192.168.54.46:18301/open-webui_default_collection_kvcache/open-webui_default_collection.zip",
+    "http://192.168.54.46:18301/open-webui_default_collection_kvcache/openwebui_default_kv_cache.zip"
   ],
   "depends": ["python311"],
   "installer": {
@@ -28,7 +30,9 @@
     ]
   },
   "post_install": [
-    "Write-Host '[INFO] Testing Open WebUI installation...'; Write-Host '[INFO] Starting Open WebUI...'; & (Join-Path $dir 'start.ps1')",
+    "Write-Host '[INFO] Copying open-webui_default_collection contents to $dir...'; if (Test-Path (Join-Path $dir 'open-webui_default_collection')) { Copy-Item -Path (Join-Path $dir 'open-webui_default_collection\\*') -Destination $dir -Recurse -Force -ErrorAction Stop; Write-Host '[SUCCESS] open-webui_default_collection contents copied' } else { Write-Warning 'open-webui_default_collection folder not found' }",
+    "Write-Host '[INFO] Copying openwebui_default_kv_cache to R:\\...'; if (Test-Path (Join-Path $dir 'openwebui_default_kv_cache')) { Copy-Item -Path (Join-Path $dir 'openwebui_default_kv_cache') -Destination 'R:\\' -Recurse -Force -ErrorAction Stop; Write-Host '[SUCCESS] openwebui_default_kv_cache copied to R:\\' } else { Write-Warning 'openwebui_default_kv_cache folder not found' }",
+    "Write-Host '[INFO] Testing Open WebUI installation...'; Write-Host '[INFO] Starting Open WebUI...'; & (Join-Path $dir 'start.ps1') -OpenBrowser $false",
     "Write-Host '[INFO] Waiting for services to initialize...'; Start-Sleep -Seconds 5",
     "Write-Host '[INFO] Waiting for service to start...'; $isRunning = $false",
     "while (-not $isRunning) { Start-Sleep -Seconds 1; try { $statusOutput = & (Join-Path $dir 'status.ps1') *>&1 | Out-String; $statusOutput = $statusOutput.Trim(); if ($statusOutput) { $statusJson = $statusOutput | ConvertFrom-Json -ErrorAction Stop; if ($statusJson.PSObject.Properties.Name -contains 'status' -and [int]$statusJson.status -eq 1) { $isRunning = $true; Write-Host '[SUCCESS] Open WebUI is running!' } } } catch { } }",

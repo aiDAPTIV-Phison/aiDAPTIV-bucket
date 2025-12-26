@@ -1,3 +1,7 @@
+param(
+    [bool]$OpenBrowser = $true
+)
+
 $ErrorActionPreference = 'Stop'
 
 # Read configuration from config.txt (corresponding to setup_and_run.bat config reading)
@@ -146,8 +150,12 @@ while ($attempt -lt $maxAttempts -and -not $isHealthy) {
         if ($response.StatusCode -eq 200 -and $response2.StatusCode -eq 200) {
             $isHealthy = $true
             Write-Host "Open WebUI is ready!"
-            Start-Process "http://127.0.0.1:$port"
-            Write-Host "Browser opened successfully."
+            if ($OpenBrowser) {
+                Start-Process "http://127.0.0.1:$port"
+                Write-Host "Browser opened successfully."
+            } else {
+                Write-Host "Browser opening is disabled."
+            }
         }
     }
     catch {
