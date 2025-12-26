@@ -31,7 +31,7 @@
     "Write-Host '[INFO] Testing Open WebUI installation...'; Write-Host '[INFO] Starting Open WebUI...'; & (Join-Path $dir 'start.ps1')",
     "Write-Host '[INFO] Waiting for services to initialize...'; Start-Sleep -Seconds 5",
     "Write-Host '[INFO] Waiting for service to start...'; $isRunning = $false",
-    "while (-not $isRunning) { Start-Sleep -Seconds 1; try { Push-Location $dir; $statusOutput = & (Join-Path $dir 'status.ps1') 2>&1 | Out-String; Pop-Location; $statusOutput = $statusOutput.Trim(); if ($statusOutput) { $statusJson = $statusOutput | ConvertFrom-Json -ErrorAction Stop; if ($statusJson.PSObject.Properties['status'] -and $statusJson.status -eq 1) { $isRunning = $true; Write-Host '[SUCCESS] Open WebUI is running!' } } } catch { } }",
+    "while (-not $isRunning) { Start-Sleep -Seconds 1; try { $statusOutput = & (Join-Path $dir 'status.ps1') 2>&1 | Out-String; $statusOutput = $statusOutput.Trim(); if ($statusOutput) { $statusJson = $statusOutput | ConvertFrom-Json -ErrorAction Stop; if ($statusJson.PSObject.Properties.Name -contains 'status' -and [int]$statusJson.status -eq 1) { $isRunning = $true; Write-Host '[SUCCESS] Open WebUI is running!' } } } catch { } }",
     "Write-Host '[INFO] Service started successfully, now stopping...'; & (Join-Path $dir 'stop.ps1'); Write-Host '[INFO] Service stopped'",
     "Write-Host '[INFO] Installation test completed'"
   ],
