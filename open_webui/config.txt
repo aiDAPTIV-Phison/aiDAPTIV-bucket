@@ -3,5 +3,5 @@ EMBEDDING_URL=http://127.0.0.1:13142/v1
 API_PORT=18299
 MAX_TOKENS_PER_GROUP=10000
 LLM_GGUF=Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf
-LLM_MODEL_DIR=C:\Users\user\Desktop\unigetui_bin\unigetui_bin\appstore\aiDAPTIV\aidaptiv\models
+LLM_MODEL_DIR=C:\models
 PORT=8080

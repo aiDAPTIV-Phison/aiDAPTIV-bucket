@@ -118,14 +118,43 @@ Start-Process `
     -RedirectStandardOutput $stdoutKmLog `
     -RedirectStandardError $stderrKmLog
 
-Write-Host ""
 Write-Host "========================================"
 Write-Host "Services Started Successfully!"
 Write-Host "========================================"
-Write-Host ""
 Write-Host "Open WebUI: http://127.0.0.1:$port"
 Write-Host "KM Service: http://127.0.0.1:$($env:API_PORT)"
-Write-Host ""
 Write-Host "Two console windows have been opened for each service."
 Write-Host "Close those windows to stop the services."
-Write-Host ""
+
+# Health check and auto-open browser
+$healthUrl = "http://127.0.0.1:$port/health"
+$healthUrl2 = "http://127.0.0.1:$($env:API_PORT)/health"
+$attemptDelay = 2
+$attempt = 0
+$isHealthy = $false
+
+Write-Host "Waiting for Open WebUI to start..."
+
+while (-not $isHealthy) {
+    Start-Sleep -Seconds $attemptDelay
+    $attempt++
+    
+    try {
+        $response = Invoke-WebRequest -Uri $healthUrl -Method Get -TimeoutSec 2 -ErrorAction Stop
+        $response2 = Invoke-WebRequest -Uri $healthUrl2 -Method Get -TimeoutSec 2 -ErrorAction Stop
+        if ($response.StatusCode -eq 200 -and $response2.StatusCode -eq 200) {
+            $isHealthy = $true
+            Write-Host "Open WebUI is ready!"
+            if ($OpenBrowser) {
+                Start-Process "http://127.0.0.1:$port"
+                Write-Host "Browser opened successfully."
+            } else {
+                Write-Host "Browser opening is disabled."
+            }
+        }
+    }
+    catch {
+        # Service not ready yet, continue waiting
+        Write-Host "Attempt ${attempt}: Service not ready yet..."
+    }
+}
