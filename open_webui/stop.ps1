@@ -1,53 +1,35 @@
 $ErrorActionPreference = 'Stop'
 
-# Stop processes by matching command line patterns
+# Stop all processes related to openwebui path
 
-function Stop-ProcessesByCommandLine {
-  param(
-    [Parameter(Mandatory = $true)]
-    [string]$Pattern
-  )
-
+function Stop-ProcessesByOpenWebUIPath {
   $procs = Get-CimInstance Win32_Process |
     Where-Object {
-      $_.CommandLine -and ($_.CommandLine -match $Pattern)
+      $procPath = $_.ExecutablePath
+      $procCmdLine = $_.CommandLine
+      
+      # Check if executable path or command line contains "openwebui" (case-insensitive)
+      ($procPath -and $procPath -match 'openwebui') -or
+      ($procCmdLine -and $procCmdLine -match 'openwebui')
     }
 
+  $stoppedCount = 0
   foreach ($p in $procs) {
-    Stop-Process -Id $p.ProcessId -Force -ErrorAction SilentlyContinue
+    try {
+      Write-Host "[INFO] Stopping process: $($p.Name) (PID: $($p.ProcessId))"
+      Stop-Process -Id $p.ProcessId -Force -ErrorAction Stop
+      $stoppedCount++
+    } catch {
+      Write-Host "[WARN] Failed to stop process PID $($p.ProcessId): $_" -ForegroundColor Yellow
+    }
   }
 
-  return $procs
+  return $stoppedCount
 }
 
-# Stop Open WebUI Backend (uvicorn)
-Write-Host '[INFO] Stopping Open WebUI Backend...'
-$stoppedBackend = Stop-ProcessesByCommandLine -Pattern 'uvicorn.*open_webui\.main:app'
-if ($stoppedBackend.Count -eq 0) {
-    # Also try to stop by checking for uvicorn in command line
-    $stoppedBackend = Stop-ProcessesByCommandLine -Pattern 'uvicorn'
-}
+# Stop all processes related to openwebui path
+Write-Host '[INFO] Stopping all processes related to openwebui path...'
+$stoppedCount = Stop-ProcessesByOpenWebUIPath
 
-# Stop KM Service (api.py)
-Write-Host '[INFO] Stopping KM Service...'
-$stoppedKM = Stop-ProcessesByCommandLine -Pattern 'uv run.*api\.py'
-if ($stoppedKM.Count -eq 0) {
-    # Also try to stop by checking for api.py in command line
-    $stoppedKM = Stop-ProcessesByCommandLine -Pattern 'api\.py'
-}
-
-# Stop any remaining processes by name
-try {
-    Stop-Process -Name 'uvicorn' -Force -ErrorAction SilentlyContinue
-} catch {
-    # ignore
-}
-
-try {
-    Stop-Process -Name 'python' -Force -ErrorAction SilentlyContinue
-} catch {
-    # ignore - this might stop other python processes too, but it's a fallback
-}
-
-Write-Host ("Stopped processes: Open WebUI Backend={0}, KM Service={1}" -f $stoppedBackend.Count, $stoppedKM.Count)
+Write-Host "[INFO] Stopped $stoppedCount process(es) related to openwebui path."
 
