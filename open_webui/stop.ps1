@@ -1,35 +1,150 @@
-$ErrorActionPreference = 'Stop'
+$ErrorActionPreference = 'SilentlyContinue'
 
-# Stop all processes related to openwebui path
+# Get current PowerShell process ID to exclude it
+$currentPID = $PID
 
-function Stop-ProcessesByOpenWebUIPath {
-  $procs = Get-CimInstance Win32_Process |
-    Where-Object {
-      $procPath = $_.ExecutablePath
-      $procCmdLine = $_.CommandLine
-      
-      # Check if executable path or command line contains "openwebui" (case-insensitive)
-      ($procPath -and $procPath -match 'openwebui') -or
-      ($procCmdLine -and $procCmdLine -match 'openwebui')
+# Base directory
+$dir = $PSScriptRoot
+
+# List of directories to check
+$checkPaths = @(
+    Join-Path $dir 'backend'
+    Join-Path $dir 'build'
+    Join-Path $dir 'km'
+)
+
+# Normalize paths for comparison
+$checkPathsLower = $checkPaths | ForEach-Object { $_.ToLower().TrimEnd('\') }
+
+# Get all processes
+$allProcs = Get-CimInstance Win32_Process
+
+# Search for processes in the specified directories
+$procsToStop = @()
+
+foreach ($proc in $allProcs) {
+    # Skip the current PowerShell process
+    if ($proc.ProcessId -eq $currentPID) {
+        continue
     }
-
-  $stoppedCount = 0
-  foreach ($p in $procs) {
-    try {
-      Write-Host "[INFO] Stopping process: $($p.Name) (PID: $($p.ProcessId))"
-      Stop-Process -Id $p.ProcessId -Force -ErrorAction Stop
-      $stoppedCount++
-    } catch {
-      Write-Host "[WARN] Failed to stop process PID $($p.ProcessId): $_" -ForegroundColor Yellow
+    
+    $procPath = $proc.ExecutablePath
+    $procCmdLine = $proc.CommandLine
+    $isMatch = $false
+    
+    # Check if process executable is in any of the check paths
+    if ($procPath) {
+        $procPathLower = $procPath.ToLower()
+        foreach ($checkPath in $checkPathsLower) {
+            if ($procPathLower.StartsWith($checkPath + '\') -or $procPathLower -eq $checkPath) {
+                $isMatch = $true
+                break
+            }
+        }
     }
-  }
-
-  return $stoppedCount
+    
+    # Check if command line contains any of the check paths
+    if ($procCmdLine -and -not $isMatch) {
+        $cmdLineLower = $procCmdLine.ToLower()
+        foreach ($checkPath in $checkPathsLower) {
+            if ($cmdLineLower.Contains($checkPath)) {
+                $isMatch = $true
+                break
+            }
+        }
+    }
+    
+    # Check process executable location
+    if (-not $isMatch) {
+        try {
+            $procObj = Get-Process -Id $proc.ProcessId -ErrorAction SilentlyContinue
+            if ($procObj -and $procObj.Path) {
+                $procDir = (Split-Path $procObj.Path -Parent).ToLower().TrimEnd('\')
+                foreach ($checkPath in $checkPathsLower) {
+                    if ($procDir -and ($procDir -eq $checkPath -or $procDir.StartsWith($checkPath + '\'))) {
+                        $isMatch = $true
+                        break
+                    }
+                }
+            }
+        } catch {
+            # Ignore errors
+        }
+    }
+    
+    # Check process modules (DLLs) loaded from check paths
+    if (-not $isMatch) {
+        try {
+            $procObj = Get-Process -Id $proc.ProcessId -ErrorAction SilentlyContinue
+            if ($procObj -and $procObj.Modules) {
+                foreach ($module in $procObj.Modules) {
+                    if ($module.FileName) {
+                        $modulePath = $module.FileName.ToLower()
+                        foreach ($checkPath in $checkPathsLower) {
+                            if ($modulePath.StartsWith($checkPath + '\') -or $modulePath -eq $checkPath) {
+                                $isMatch = $true
+                                break
+                            }
+                        }
+                        if ($isMatch) { break }
+                    }
+                }
+            }
+        } catch {
+            # Ignore errors
+        }
+    }
+    
+    if ($isMatch) {
+        $procsToStop += $proc
+    }
 }
 
-# Stop all processes related to openwebui path
-Write-Host '[INFO] Stopping all processes related to openwebui path...'
-$stoppedCount = Stop-ProcessesByOpenWebUIPath
+# Get all child processes recursively
+function Get-ChildProcesses {
+    param([int]$ParentPID)
+    $children = @()
+    $directChildren = Get-CimInstance Win32_Process | Where-Object { $_.ParentProcessId -eq $ParentPID }
+    foreach ($child in $directChildren) {
+        $children += $child
+        $children += Get-ChildProcesses -ParentPID $child.ProcessId
+    }
+    return $children
+}
 
-Write-Host "[INFO] Stopped $stoppedCount process(es) related to openwebui path."
+$allProcsToStop = @($procsToStop)
+foreach ($proc in $procsToStop) {
+    $children = Get-ChildProcesses -ParentPID $proc.ProcessId
+    $allProcsToStop += $children
+}
 
+# Remove duplicates and exclude current process
+$allProcsToStop = $allProcsToStop | Where-Object { $_.ProcessId -ne $currentPID } | Sort-Object -Unique -Property ProcessId
+
+# Stop all found processes
+Write-Host "Found $($allProcsToStop.Count) related process(es), stopping..."
+
+foreach ($p in $allProcsToStop) {
+    # Double check: skip current process
+    if ($p.ProcessId -eq $currentPID) {
+        continue
+    }
+    
+    $procInfo = "$($p.Name) (PID: $($p.ProcessId))"
+    if ($p.CommandLine) {
+        $cmdPreview = $p.CommandLine.Substring(0, [Math]::Min(80, $p.CommandLine.Length))
+        $procInfo += " - $cmdPreview"
+    }
+    Write-Host "Stopping: $procInfo"
+    
+    try {
+        Stop-Process -Id $p.ProcessId -Force -ErrorAction SilentlyContinue
+        if (-not $?) {
+            & taskkill /F /PID $p.ProcessId 2>&1 | Out-Null
+        }
+    } catch {
+        & taskkill /F /PID $p.ProcessId 2>&1 | Out-Null
+    }
+}
+
+Write-Host "Done! Stopped $($allProcsToStop.Count) process(es)."
