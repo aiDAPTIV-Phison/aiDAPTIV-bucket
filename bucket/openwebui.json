@@ -7,9 +7,18 @@
     "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/open_webui/stop.ps1",
     "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/open_webui/status.ps1",
     "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/open_webui/config.txt",
-    "http://192.168.54.46:18301/open-webui.zip",
-    "http://192.168.54.46:18301/open-webui_default_collection_kvcache/open-webui_default_collection.zip",
-    "http://192.168.54.46:18301/open-webui_default_collection_kvcache/openwebui_default_kv_cache.zip"
+    "https://phison-software-bucket.s3.ap-northeast-1.amazonaws.com/aiDAPTIV_Application/Phison-ReuseAppMarket/Apps/Open-webui/open-webui.zip",
+    "https://phison-software-bucket.s3.ap-northeast-1.amazonaws.com/aiDAPTIV_Application/Phison-ReuseAppMarket/Apps/Open-webui/open-webui_default_collection.zip",
+    "https://phison-software-bucket.s3.ap-northeast-1.amazonaws.com/aiDAPTIV_Application/Phison-ReuseAppMarket/Apps/Open-webui/openwebui_default_kv_cache.zip"
+  ],
+  "hash": [
+    "0752c970d50aba2be375b37bca2d73925e23e016a1fe75be3cef6b68f760bc49",
+    "e107f8ff486156108b1d10193d2732bfa258af5edac3586c72b35dc294b28ba4",
+    "a87497cc249c7493c69b5f2100ddeadb07f34897fa7de03f2ebe0c62094b6f9f",
+    "4c87ca90481ee55521b0d67aa1f3e27154298750646f772a04a6201f11488428",
+    "50cdba89ab3140e0b974de468ac54027c4022f5705adc84629ac681c81348f6e",
+    "85148febdf3bf8a751535e12fa69fa1ea45b3f38a0f5f01ea17a053826e7d3a6",
+    "2343f772a559b4a33941897f71eb3082fa6625fd753c6662f897cf4f90602193"
   ],
   "depends": ["python311"],
   "installer": {
