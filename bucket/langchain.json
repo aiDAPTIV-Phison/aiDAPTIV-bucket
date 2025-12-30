@@ -1,0 +1,33 @@
+{
+  "version": "1.0.0",
+  "description": "aiDAPTIV Langchain with KV cache acceleration",
+  "url": [
+    "https://phison-software-bucket.s3.ap-northeast-1.amazonaws.com/aiDAPTIV_Application/Phison-ReuseAppMarket/Apps/LangChain/Langchain_Installer_1.0.0.exe",
+    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/dev_langchain/langchain/start.ps1",
+    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/dev_langchain/langchain/stop.ps1",
+    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/dev_langchain/langchain/status.ps1",
+    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/dev_langchain/langchain/config.txt",
+    "https://phison-software-bucket.s3.ap-northeast-1.amazonaws.com/aiDAPTIV_Application/Phison-ReuseAppMarket/Apps/LangChain/langchain_kvcache.zip"
+  ],
+  "installer": {
+    "script": [
+      "Write-Host 'Running silent engine installer...' -ForegroundColor Cyan",
+      "$process = Start-Process -FilePath \"$dir\\Langchain_Installer_1.0.0.exe\" -ArgumentList '/S', \"/D=$dir\\langchain\" -PassThru -Wait",
+      "Remove-Item \"$dir\\Langchain_Installer_1.0.0.exe\" -Force -ErrorAction SilentlyContinue"
+    ]
+  },
+  "post_install": [
+    "Write-Host 'Finalizing environment...' -ForegroundColor Green",
+    "if (!(Test-Path \"$dir\\langchain\\app\\docs\")) { New-Item -ItemType Directory -Force -Path \"$dir\\langchain\\app\\docs\" | Out-Null }",
+    "if ((Test-Path 'R:\\inference_phison') -and (Test-Path \"$dir\\langchain_kvcache\")) { Move-Item -Path \"$dir\\langchain_kvcache\" -Destination 'R:\\inference_phison\\langchain_kvcache' -Force }"
+  ],
+  "pre_uninstall": [
+    "Write-Host 'Stopping services...' -ForegroundColor Red",
+    "if (Test-Path \"$dir\\stop.ps1\") { & \"$dir\\stop.ps1\" | Out-Null; Start-Sleep -Seconds 2 }",
+    "if (Test-Path \"$dir\\langchain\\Uninstall.exe\") { Start-Process -Wait -FilePath \"$dir\\langchain\\Uninstall.exe\" -ArgumentList '/S' }",
+    "if (Test-Path 'R:\\inference_phison\\langchain_kvcache') { Remove-Item -Path 'R:\\inference_phison\\langchain_kvcache' -Recurse -Force -ErrorAction SilentlyContinue }",
+    "Remove-Item \"$dir\\Langchain_Installer_1.0.0.exe\" -Force -ErrorAction SilentlyContinue",
+    "if (Test-Path \"$dir\\app.err.log\") { Remove-Item \"$dir\\app.err.log\" -Force }",
+    "if (Test-Path \"$dir\\langchain\") { Remove-Item -Path \"$dir\\langchain\" -Recurse -Force -ErrorAction SilentlyContinue }"
+  ]
+}
