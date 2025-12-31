@@ -1,0 +1,18 @@
+{
+    "version": "1.0.1",
+    "description": "Chat with YouTube videos to learn faster. This integration ingests a video's transcript, builds searchable context, and enables instant Q&A, summaries, and key takeaways —— perfect for personal study, creators, and anyone who wants to turn long videos into clear notes.",
+    "homepage": "https://github.com/aiDAPTIV-Phison/aiDAPTIV-Integration-Chat-with-Youtube",
+    "url": [
+        "http://192.168.54.46:18301/yt/aiDAPTIV-Integration-Chat-with-Youtube.7z"
+    ],
+    "installer": {
+        "script": [
+            "& \"$dir\\setup.bat\" /S"
+        ]
+    },
+    "post_install": [],
+    "pre_uninstall": [
+        "if (Test-Path \"$dir\\stop.ps1\") { & \"$dir\\stop.ps1\" | Out-Null; Start-Sleep -Seconds 2 }",
+        "if (Test-Path \"$dir\\status.ps1\") { Remove-Item -Path \"$dir\\status.ps1\" -Force -ErrorAction SilentlyContinue }"
+    ]
+}
