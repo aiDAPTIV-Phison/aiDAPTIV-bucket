@@ -3,7 +3,16 @@
     "description": "Chat with YouTube videos to learn faster. This integration ingests a video's transcript, builds searchable context, and enables instant Q&A, summaries, and key takeaways —— perfect for personal study, creators, and anyone who wants to turn long videos into clear notes.",
     "homepage": "https://github.com/aiDAPTIV-Phison/aiDAPTIV-Integration-Chat-with-Youtube",
     "url": [
-        "http://192.168.54.46:18301/yt/aiDAPTIV-Integration-Chat-with-Youtube.7z"
+        "http://192.168.54.46:18301/yt/aiDAPTIV-Integration-Chat-with-Youtube.7z",
+        "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/chatwithyoutube/chatwithyoutube/start.ps1",
+        "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/chatwithyoutube/chatwithyoutube/stop.ps1",
+        "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/chatwithyoutube/chatwithyoutube/status.ps1"
+    ],
+    "hash": [
+        "42421e28e56393fb52ed33d2ae815c5893fdaf7a898cfb933ee7f6b2666c6101",
+        "f286a1a9c3c3e01fa9bc62dd22cbcf397b5e5b431a0ed55e928b6e6d4ab9f44d",
+        "d48528f06e4fbfa95f7c6fdf44bb8fff36823072e51117d3d3fe01bba24c4ae4",
+        "1580f39613de4bea5585d50b46f65859167a29110ce94b46d38c204d593831b2"
     ],
     "installer": {
         "script": [
