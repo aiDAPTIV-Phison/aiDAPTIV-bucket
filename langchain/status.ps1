@@ -1,8 +1,17 @@
-$ErrorActionPreference = 'Stop'
-$pyPath = Join-Path $PSScriptRoot "langchain\app\python-3.10\python.exe"
+$ErrorActionPreference = 'SilentlyContinue'
+$pidFile = Join-Path $PSScriptRoot "app.pid"
+$isRunning = 0
 
-$procs = Get-CimInstance Win32_Process | Where-Object { $_.ExecutablePath -ieq $pyPath }
-$isRunning = ($null -ne $procs)
+if (Test-Path $pidFile) {
+    $savedPid = Get-Content $pidFile -Raw
+    if ($savedPid) {
+        # Check if the specific process ID exists and is still a Python process
+        $proc = Get-Process -Id $savedPid.Trim()
+        if ($proc -and $proc.ProcessName -match "python") {
+            $isRunning = 1
+        }
+    }
+}
 
-$status = if ($isRunning) { 1 } else { 0 }
-@{ status = $status } | ConvertTo-Json -Compress
+# Return ONLY clean JSON for UniGetUI/Scoop
+@{ status = $isRunning } | ConvertTo-Json -Compress

@@ -1,12 +1,15 @@
 $ErrorActionPreference = 'Stop'
-$pyPath = Join-Path $PSScriptRoot "app\python-3.10\python.exe"
+$pidFile = Join-Path $PSScriptRoot "app.pid"
 
-function Stop-ProcessesByPath {
-    param([string]$ExecutablePath)
-    $procs = Get-CimInstance Win32_Process | Where-Object { $_.ExecutablePath -ieq $ExecutablePath }
-    foreach ($p in $procs) { Stop-Process -Id $p.ProcessId -Force -ErrorAction SilentlyContinue }
-    return $procs.Count
+if (Test-Path $pidFile) {
+    $savedPid = Get-Content $pidFile -Raw
+    if ($savedPid) {
+        Write-Host "Stopping Langchain process (PID: $savedPid)..." -ForegroundColor Yellow
+        Stop-Process -Id $savedPid.Trim() -Force -ErrorAction SilentlyContinue
+    }
+    # Clean up the PID file
+    Remove-Item $pidFile -Force
+    Write-Host "Process stopped and PID file removed." -ForegroundColor Green
+} else {
+    Write-Host "No PID file found. App might not be running." -ForegroundColor Gray
 }
-
-$count = Stop-ProcessesByPath -ExecutablePath $pyPath
-Write-Host "Stopped $count processes."
