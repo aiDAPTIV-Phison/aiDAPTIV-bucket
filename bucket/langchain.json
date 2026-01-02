@@ -1,28 +1,36 @@
 {
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "aiDAPTIV Langchain with KV cache acceleration",
   "url": [
-    "https://phison-software-bucket.s3.ap-northeast-1.amazonaws.com/aiDAPTIV_Application/Phison-ReuseAppMarket/Apps/LangChain/Langchain_Installer_1.0.0.exe",
+    "https://phison-software-bucket.s3.ap-northeast-1.amazonaws.com/aiDAPTIV_Application/Phison-ReuseAppMarket/Apps/LangChain/Langchain_Installer_1.0.1.exe",
     "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/dev_langchain/langchain/start.ps1",
     "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/dev_langchain/langchain/stop.ps1",
     "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/dev_langchain/langchain/status.ps1",
     "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/dev_langchain/langchain/config.txt",
     "https://phison-software-bucket.s3.ap-northeast-1.amazonaws.com/aiDAPTIV_Application/Phison-ReuseAppMarket/Apps/LangChain/langchain_kvcache.zip"
   ],
+  "hash": [
+    "FAB094319879C374B3D2A24C17645D853FEA2AE2E824143F8A82AC94FDAF544E",
+    "2BAE1606B5C1FBFB87A76C89DA2F2F6B9D6F74B8C98D2C2512C97EA633B31CB9",
+    "8B373768ACFB9C642030A85E4A6FAFA13D0633DF2B4E7C4CB4DB84DB5A820897",
+    "EBB062D027A1893E6D18A1F7E3BFA05DEB4824972E7604B032A971A036D4EDF8",
+    "E8A5DBA1ADB296B61E72CE1AFECFBB3BF7333B64ECB94F4BD603A7769BDCE560",
+    "1119045BD7BD7C332A459787EEC0A021A981947CB1A60DB4E33094FD03669396"
+  ],
   "installer": {
     "script": [
       "Write-Host 'Running silent engine installer...' -ForegroundColor Cyan",
-      "$process = Start-Process -FilePath \"$dir\\Langchain_Installer_1.0.0.exe\" -ArgumentList '/S', \"/D=$dir\\langchain\" -PassThru -Wait",
-      "Remove-Item \"$dir\\Langchain_Installer_1.0.0.exe\" -Force -ErrorAction SilentlyContinue"
+      "$process = Start-Process -FilePath \"$dir\\Langchain_Installer_1.0.0\" -ArgumentList '/S', \"/D=$dir\\langchain\" -PassThru -Wait"
     ]
   },
   "post_install": [
     "Write-Host 'Finalizing environment...' -ForegroundColor Green",
-    "if (!(Test-Path \"$dir\\langchain\\app\\docs\")) { New-Item -ItemType Directory -Force -Path \"$dir\\langchain\\app\\docs\" | Out-Null }",
-    "if ((Test-Path 'R:\\inference_phison') -and (Test-Path \"$dir\\langchain_kvcache\")) { Move-Item -Path \"$dir\\langchain_kvcache\" -Destination 'R:\\inference_phison\\langchain_kvcache' -Force }"
+    "if (!(Test-Path 'R:\\inference_phison')) { New-Item -ItemType Directory -Force -Path 'R:\\inference_phison' | Out-Null }",
+    "if ((Test-Path 'R:\\inference_phison') -and (Test-Path \"$dir\\inference_phison\")) { Move-Item -Path \"$dir\\inference_phison\" -Destination 'R:\\inference_phison\\langchain_kvcache\\' -Force }"
   ],
   "pre_uninstall": [
     "Write-Host 'Stopping services...' -ForegroundColor Red",
+    "if (Test-Path \"$dir\\status.ps1\") { Remove-Item -Path \"$dir\\status.ps1\" -Force -ErrorAction SilentlyContinue }",
     "if (Test-Path \"$dir\\stop.ps1\") { & \"$dir\\stop.ps1\" | Out-Null; Start-Sleep -Seconds 2 }",
     "if (Test-Path \"$dir\\langchain\\Uninstall.exe\") { Start-Process -Wait -FilePath \"$dir\\langchain\\Uninstall.exe\" -ArgumentList '/S' }",
     "if (Test-Path 'R:\\inference_phison\\langchain_kvcache') { Remove-Item -Path 'R:\\inference_phison\\langchain_kvcache' -Recurse -Force -ErrorAction SilentlyContinue }",

@@ -4,7 +4,6 @@ $ErrorActionPreference = 'Stop'
 $appDir = Join-Path $PSScriptRoot "langchain\app"
 $pyPath = Join-Path $appDir "python-3.10\python.exe"
 $mainPy = Join-Path $appDir "main.py"
-$stderrLog = Join-Path $appDir "app.err.log"
 
 # This tells Python to put logs in the root ($dir) instead of the app folder
 $env:LOG_OUTPUT_DIR = $PSScriptRoot
