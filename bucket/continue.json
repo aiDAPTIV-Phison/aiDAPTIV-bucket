@@ -20,7 +20,7 @@
         "Write-Host '[DOWNLOAD & EXTRACT] continue_kvcache.zip' -ForegroundColor Cyan",
         "Write-Host '========================================' -ForegroundColor Cyan",
         "$installDrive = Split-Path -Qualifier $dir",
-        "$cacheZipUrl = 'http://192.168.54.46:18301/continue/continue_kvcache.zip'",
+        "$cacheZipUrl = 'https://phison-software-bucket.s3.ap-northeast-1.amazonaws.com/aiDAPTIV_Application/Phison-ReuseAppMarket/Apps/continue/continue_kvcache.zip'",
         "$cacheZipPath = Join-Path $dir 'continue_kvcache.zip'",
         "$cacheZipHash = '3ce81313d3f33a12c972835db669cbbc93b6f80e5718039e6947a965278c4c6c'",
         "$cacheFolder = Join-Path $dir 'continue_kvcache'",
