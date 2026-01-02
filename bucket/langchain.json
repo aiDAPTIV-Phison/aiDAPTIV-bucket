@@ -4,10 +4,10 @@
   "homepage": "https://github.com/aiDAPTIV-Phison/aiDAPTIV-Integration-Langchain",
   "url": [
     "https://phison-software-bucket.s3.ap-northeast-1.amazonaws.com/aiDAPTIV_Application/Phison-ReuseAppMarket/Apps/LangChain/Langchain_Installer_1.0.1.exe",
-    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/dev_langchain/langchain/start.ps1",
-    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/dev_langchain/langchain/stop.ps1",
-    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/dev_langchain/langchain/status.ps1",
-    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/dev_langchain/langchain/config.txt",
+    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/langchain/start.ps1",
+    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/langchain/stop.ps1",
+    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/langchain/status.ps1",
+    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/langchain/config.txt",
     "https://phison-software-bucket.s3.ap-northeast-1.amazonaws.com/aiDAPTIV_Application/Phison-ReuseAppMarket/Apps/LangChain/langchain_kvcache.zip"
   ],
   "hash": [
