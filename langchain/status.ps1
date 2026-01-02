@@ -1,5 +1,5 @@
 $ErrorActionPreference = 'Stop'
-$pyPath = Join-Path $PSScriptRoot "app\python-3.10\python.exe"
+$pyPath = Join-Path $PSScriptRoot "langchain\app\python-3.10\python.exe"
 
 $procs = Get-CimInstance Win32_Process | Where-Object { $_.ExecutablePath -ieq $pyPath }
 $isRunning = ($null -ne $procs)
