@@ -2,18 +2,18 @@
   "version": "1.0.0",
   "description": "aiDAPTIV Langchain with KV cache acceleration",
   "url": [
-    "C:\\Users\\Swift16\\Downloads\\Langchain_Installer_1.0.1.exe",
-    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/dev_langchain/langchain/start.ps1",
-    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/dev_langchain/langchain/stop.ps1",
-    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/dev_langchain/langchain/status.ps1",
-    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/dev_langchain/langchain/config.txt",
-    "C:\\Users\\Swift16\\Downloads\\langchain_kvcache.zip"
+    "https://phison-software-bucket.s3.ap-northeast-1.amazonaws.com/aiDAPTIV_Application/Phison-ReuseAppMarket/Apps/LangChain/Langchain_Installer_1.0.1.exe",
+    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/langchain/start.ps1",
+    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/langchain/stop.ps1",
+    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/langchain/status.ps1",
+    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/langchain/config.txt",
+    "https://phison-software-bucket.s3.ap-northeast-1.amazonaws.com/aiDAPTIV_Application/Phison-ReuseAppMarket/Apps/LangChain/langchain_kvcache.zip"
   ],
   "hash": [
     "FAB094319879C374B3D2A24C17645D853FEA2AE2E824143F8A82AC94FDAF544E",
-    "757C74E41B69F678293D92FB21FF51FF55F230588D2E36F816AA79C0A26B197D",
-    "8B373768ACFB9C642030A85E4A6FAFA13D0633DF2B4E7C4CB4DB84DB5A820897",
-    "782E1B332984EE196A1276125FB18190A9691A603FC4EFED39DB4F35E2F86A17",
+    "85D8A56E7BCA47227FB3EDBFA39CCF1B91135E9430DB116DD6F3B0AEA1964639",
+    "84D7CA59AB744738FD4CFF577E69FFB0D049F32D3E22BD4215AF47F8BA610661",
+    "7299018C3613447D7783D3B7C5549D7320BFF2FB4272709685230D4988EEDA4A",
     "E8A5DBA1ADB296B61E72CE1AFECFBB3BF7333B64ECB94F4BD603A7769BDCE560",
     "1119045BD7BD7C332A459787EEC0A021A981947CB1A60DB4E33094FD03669396"
   ],
