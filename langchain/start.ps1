@@ -34,9 +34,7 @@ if (Test-Path $appDir) {
     
     # Save the PID for our status.ps1
     $proc.Id | Out-File $pidFile -Force
-    
-    # Wait for the process to finish so the window doesn't close instantly
-    $proc.WaitForExit()
+
 } else {
     Write-Error "Could not find application directory at: $appDir"
 }
