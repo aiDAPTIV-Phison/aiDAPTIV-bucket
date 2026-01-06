@@ -16,7 +16,7 @@ if (-not (Test-Path $serverPath)) {
 }
 
 # Read port from config.txt or use default
-$port = 8000
+$port = 18006
 $configPath = Join-Path $scriptDir 'config.txt'
 if (Test-Path $configPath) {
     $configContent = Get-Content $configPath -Raw
