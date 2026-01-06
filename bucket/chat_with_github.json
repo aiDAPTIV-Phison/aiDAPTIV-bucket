@@ -3,12 +3,12 @@
   "description": "Chat with Github is an AI-powered assistant that integrates GitHub MCP with OpenWebUI, allowing users to interact with repositories, issues, and PRs using localized LLM acceleration and dedicated KV cache.",
   "homepage": "https://github.com/aiDAPTIV-Phison/aiDAPTIV-Integration-Chat_with_Github",
   "url": [
-    "https://phison-software-bucket.s3.ap-northeast-1.amazonaws.com/aiDAPTIV_Application/Phison-ReuseAppMarket/Apps/ChatWithGithub/Chat_With_Github_Installer_1.0.1.exe",
+    "https://phison-software-bucket.s3.ap-northeast-1.amazonaws.com/aiDAPTIV_Application/Phison-ReuseAppMarket/Apps/ChatWithGithubMCP/Chat_With_Github_Installer_1.0.1.exe",
     "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/chat_with_github/start.ps1",
     "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/chat_with_github/stop.ps1",
     "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/chat_with_github/status.ps1",
     "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/chat_with_github/config.txt",
-    "https://phison-software-bucket.s3.ap-northeast-1.amazonaws.com/aiDAPTIV_Application/Phison-ReuseAppMarket/Apps/ChatWithGithub/chat_with_github_kvcache.zip"
+    "https://phison-software-bucket.s3.ap-northeast-1.amazonaws.com/aiDAPTIV_Application/Phison-ReuseAppMarket/Apps/ChatWithGithubMCP/chat_with_github_kvcache.zip"
   ],
   "hash": [
     "FFC8D1850DF602094031082B0A74D0ADB086987EB58E927E912972460A2B1426",
