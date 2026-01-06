@@ -46,7 +46,7 @@ $env:NODE_ENV = 'production'
 try {
     $process = Start-Process `
         -FilePath 'node.exe' `
-        -ArgumentList "server.js --port $port" `
+        -ArgumentList "server.js --demo --port $port" `
         -WorkingDirectory $scriptDir `
         -WindowStyle Hidden `
         -RedirectStandardOutput $stdoutLog `
