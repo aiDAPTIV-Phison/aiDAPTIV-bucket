@@ -1,0 +1,63 @@
+{
+  "version": "1.0.1",
+  "description": "Chat with Github is an AI-powered assistant that integrates GitHub MCP with OpenWebUI, allowing users to interact with repositories, issues, and PRs using localized LLM acceleration and dedicated KV cache.",
+  "homepage": "https://github.com/aiDAPTIV-Phison/aiDAPTIV-Integration-Chat_with_Github",
+  "url": [
+    "https://phison-software-bucket.s3.ap-northeast-1.amazonaws.com/aiDAPTIV_Application/Phison-ReuseAppMarket/Apps/ChatWithGithubMCP/Chat_With_Github_Installer_1.0.1.exe",
+    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/chat_with_github/start.ps1",
+    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/chat_with_github/stop.ps1",
+    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/chat_with_github/status.ps1",
+    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/chat_with_github/config.txt",
+    "https://phison-software-bucket.s3.ap-northeast-1.amazonaws.com/aiDAPTIV_Application/Phison-ReuseAppMarket/Apps/ChatWithGithubMCP/chat_with_github_kvcache.zip"
+  ],
+  "hash": [
+    "FFC8D1850DF602094031082B0A74D0ADB086987EB58E927E912972460A2B1426",
+    "4C1BEBADEFABFA61B3D5441C4E7441A2ACEA8382664574D4A4C4DC0740904681",
+    "C05FD6E1B795743805DDD2EBB1E22F70F221BEA2BDA0054BB917CA328F5378DA",
+    "2EB112D599453C932F76326BCD20F093816FCFC5F946891AB960691B148F1439",
+    "C8890ACD52FA1E0708A123BC528EA827BFFF4B94762479BFD2E57FF9D397ADE8",
+    "62168FB6C404982080DAB935927E31B0FA9FE910D977257FE6153088136B5AC3"
+  ],
+  "installer": {
+    "script": [
+      "Write-Host 'Running silent GitHub Integration installer...' -ForegroundColor Cyan",
+      "$process = Start-Process -FilePath \"$dir\\Chat_With_Github_Installer_1.0.1.exe\" -ArgumentList '/S', \"/D=$dir\\Chat_with_Github\" -PassThru -Wait"
+    ]
+  },
+  "post_install": [
+    "Write-Host 'Finalizing GitHub environment and KV Cache...' -ForegroundColor Green",
+    "$destRoot = 'R:\\inference_phison'",
+    "$destApp = Join-Path $destRoot 'chat_with_github_kvcache'",
+    "$sourcePath = Join-Path $dir 'inference_phison'",
+    "",
+    "# 1. Ensure R-Drive structure exists",
+    "if (!(Test-Path $destRoot)) { New-Item -ItemType Directory -Force -Path $destRoot | Out-Null }",
+    "if (!(Test-Path $destApp)) { New-Item -ItemType Directory -Force -Path $destApp | Out-Null }",
+    "",
+    "# 2. Move contents if the source from ZIP exists",
+    "if (Test-Path $sourcePath) {",
+    "    Write-Host 'Moving KV Cache files from C: to R: drive...' -ForegroundColor Gray",
+    "    Copy-Item -Path \"$sourcePath\\*\" -Destination $destApp -Recurse -Force",
+    "    Remove-Item -Path $sourcePath -Recurse -Force",
+    "    Write-Host 'KV Cache successfully moved to R drive.' -ForegroundColor Green",
+    "} else {",
+    "    Write-Host 'WARNING: Source inference_phison folder not found in C drive root.' -ForegroundColor Yellow",
+    "}"
+  ],
+  "pre_uninstall": [
+    "Write-Host 'Stopping GitHub and OpenWebUI services...' -ForegroundColor Red",
+    "if (Test-Path \"$dir\\status.ps1\") { Remove-Item -Path \"$dir\\status.ps1\" -Force -ErrorAction SilentlyContinue }",
+    "if (Test-Path \"$dir\\stop.ps1\") { & \"$dir\\stop.ps1\" | Out-Null; Start-Sleep -Seconds 2 }",
+    "if (Test-Path \"$dir\\backend\\Uninstall.exe\") { Start-Process -Wait -FilePath \"$dir\\backend\\Uninstall.exe\" -ArgumentList '/S' }",
+    "# Clean up R drive data",
+    "if (Test-Path 'R:\\inference_phison\\chat_with_github_kvcache') { ",
+    "    Write-Host 'Removing KV Cache from R drive...' -ForegroundColor Gray",
+    "    Remove-Item -Path 'R:\\inference_phison\\chat_with_github_kvcache' -Recurse -Force -ErrorAction SilentlyContinue ",
+    "}",
+    "",
+    "Remove-Item \"$dir\\Chat_With_Github_Installer_1.0.1.exe\" -Force -ErrorAction SilentlyContinue",
+    "Get-ChildItem -Path $dir -Filter \"app*.log\" | Remove-Item -Force -ErrorAction SilentlyContinue",
+    "if (Test-Path \"$dir\\backend\") { Remove-Item -Path \"$dir\\backend\" -Recurse -Force -ErrorAction SilentlyContinue }",
+    "if (Test-Path \"$dir\\.env\") { Remove-Item \"$dir\\.env\" -Force -ErrorAction SilentlyContinue }"
+  ]
+}
