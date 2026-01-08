@@ -1,0 +1,70 @@
+{
+  "version": "1.0.1",
+  "description": "aiDAPTIV Langflow is a low-code platform for building multi-agent AI workflows, optimized with Phison KV cache acceleration for private document analysis and rapid prototyping.",
+  "homepage": "https://github.com/aiDAPTIV-Phison/aiDAPTIV-Integration-langflow",
+  "url": [
+    "https://phison-software-bucket.s3.ap-northeast-1.amazonaws.com/aiDAPTIV_Application/Phison-ReuseAppMarket/Apps/Langflow/Langflow_Installer_1.0.1.exe",
+    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/langflow/start.ps1",
+    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/langflow/stop.ps1",
+    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/langflow/status.ps1",
+    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/langflow/config.txt",
+    "https://phison-software-bucket.s3.ap-northeast-1.amazonaws.com/aiDAPTIV_Application/Phison-ReuseAppMarket/Apps/Langflow/langflow_kvcache.zip"
+  ],
+  "hash": [
+    "468BA2A3555F463088DB6624B5FDD18C585987AAC7B14FBAC0E2F47C23C94195",
+    "1EA8BB54D7C21B96FB37C0F40F461BDE5EE4DECDF160EA228E7F17CA4BAC16BD",
+    "9A93B1249316456CA293ACA1AAE08347006A60B7CC88A41F073F32C3B7772808",
+    "A5C020CAEA87CE959F3141B11A933574D296EADBEFD3EB16CC7562873ABE8263",
+    "B85B46D8346A263680EB8D3FD27B9FEAD8C9D5949921EB9BFD3E4E2675C4457D",
+    "73BF70661BF3F416014544A76C52E5C1FEF608C224A085BCEFBA6D67D35AB37C"
+
+  ],
+  "installer": {
+    "script": [
+      "Write-Host 'Running silent Langflow engine installer...' -ForegroundColor Cyan",
+      "$process = Start-Process -FilePath \"$dir\\Langflow_Installer_1.0.1.exe\" -ArgumentList '/S', \"/D=$dir\" -PassThru -Wait"
+    ]
+  },
+  "post_install": [
+    "Write-Host 'Finalizing Langflow cache and directories...' -ForegroundColor Green",
+    "$flowUuid = 'e7e17006-738b-45e4-8184-141f18c86d9a'",
+    "$cacheTarget = Join-Path $env:LOCALAPPDATA \"langflow\\langflow\\Cache\\$flowUuid\"",
+    "if (!(Test-Path $cacheTarget)) { New-Item -ItemType Directory -Force -Path $cacheTarget | Out-Null }",
+    "$sourceDocs = Join-Path $dir \"app\\docs\\$flowUuid\"",
+    "if (Test-Path $sourceDocs) { Copy-Item -Path \"$sourceDocs\\*\" -Destination $cacheTarget -Recurse -Force }",
+    "",
+  "Write-Host 'Setting up KV Cache on R: drive...' -ForegroundColor Green",
+    "$destRoot = 'R:\\inference_phison'",
+    "$destApp = Join-Path $destRoot 'langflow_kvcache'",
+    "# Scoop extracts the ZIP to the root $dir",
+    "$sourcePath = Join-Path $dir 'inference_phison'",
+    "if (!(Test-Path $sourcePath)) { $sourcePath = Join-Path $dir 'langflow_kvcache' }",
+    "",
+    "if (!(Test-Path $destRoot)) { New-Item -ItemType Directory -Force -Path $destRoot | Out-Null }",
+    "if (Test-Path $sourcePath) {",
+    "    if (Test-Path $destApp) { Remove-Item -Path $destApp -Recurse -Force }",
+    "    Move-Item -Path $sourcePath -Destination $destApp -Force",
+    "    Write-Host 'KV Cache successfully moved.' -ForegroundColor Green",
+    "} else {",
+    "    Write-Host 'WARNING: Could not find KV Cache folder in extracted files.' -ForegroundColor Yellow",
+    "}"
+  ],
+  "pre_uninstall": [
+    "$pidFile = Join-Path $dir 'app.pid'",
+    "Write-Host 'Stopping services...' -ForegroundColor Red",
+    "if (Test-Path \"$dir\\stop.ps1\") { & \"$dir\\stop.ps1\" }",
+    "",
+    "Write-Host 'Cleaning up LocalAppData Cache...' -ForegroundColor Gray",
+    "$flowUuid = 'e7e17006-738b-45e4-8184-141f18c86d9a'",
+    "$cacheTarget = Join-Path $env:LOCALAPPDATA \"langflow\\langflow\\Cache\\$flowUuid\"",
+    "if (Test-Path $cacheTarget) { Remove-Item -Path $cacheTarget -Recurse -Force -ErrorAction SilentlyContinue }",
+    "",
+    "if (Test-Path $pidFile) { $p = Get-Content $pidFile; Stop-Process -Id $p -Force -ErrorAction SilentlyContinue; Remove-Item $pidFile }",
+    "Write-Host 'Removing application files...' -ForegroundColor Gray",
+    "if (Test-Path \"$dir\\Uninstall.exe\") { Start-Process -Wait -FilePath \"$dir\\Uninstall.exe\" -ArgumentList '/S' }",
+    "Remove-Item \"$dir\\app\" -Recurse -Force -ErrorAction SilentlyContinue",
+    "",
+    "if (Test-Path 'R:\\inference_phison\\langflow_kvcache') { Remove-Item -Path 'R:\\inference_phison\\langflow_kvcache' -Recurse -Force -ErrorAction SilentlyContinue }",
+    "Get-ChildItem -Path $dir -Filter \"app*.log\" | Remove-Item -Force -ErrorAction SilentlyContinue"
+  ]
+}
