@@ -240,7 +240,7 @@
     "}",
     "",
     "# Clean up external data directories (kvcache .bin files on R drive)",
-    "$targetDir = 'R:\\inference_phison\\SillyTavern'",
+    "$targetDir = 'R:\\inference_phison\\SillyTavern_kvcache'",
     "if (Test-Path $targetDir) {",
     "    $binFiles = Get-ChildItem -Path $targetDir -File -Filter '*.bin' -ErrorAction SilentlyContinue",
     "    if ($binFiles) {",
