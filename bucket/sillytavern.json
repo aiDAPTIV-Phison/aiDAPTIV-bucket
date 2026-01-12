@@ -7,14 +7,14 @@
     "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/sillytavern/start.ps1",
     "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/sillytavern/stop.ps1",
     "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/sillytavern/status.ps1",
-    "https://ap-northeast-1.console.aws.amazon.com/s3/object/phison-software-bucket?region=ap-northeast-1&prefix=aiDAPTIV_Application/Phison-ReuseAppMarket/Apps/SillyTavern/SillyTavern_kvcache.zip"
+    "https://phison-software-bucket.s3.ap-northeast-1.amazonaws.com/aiDAPTIV_Application/Phison-ReuseAppMarket/Apps/SillyTavern/SillyTavern_kvcache.zip"
   ],
   "hash": [
     "8c4161c0c8065e41ea418cf05e8f5aac831a926e2e30208cb82161e23ef59284",
     "d881fc5c26e2c05ed2887e272aa7e78d4f19b90d7e8fb9075d79d9f91bffe291",
     "a713c2b2645febc087109ebb713b526fba8753415d568ad3d1b3e57a2943ed04",
     "44ab3ccbd8c0d69fe342c32022986c654c4d929a74cff064419f49c00f1f86ee",
-    "8242b56de1f5d7756b2d7dacbc059e952095e0ba2a8208dd725e70e1d3225e04"
+    "3a139eec0733630259e780ce0e1f13307345b4827db843217d379acd35323c1d"
   ],
   "installer": {
     "script": [
@@ -111,9 +111,9 @@
     "    $settings | ConvertTo-Json -Depth 100 | Set-Content -Path $settingsPath -NoNewline",
     "}",
     "",
-    "# Extract SillyTavern_kvcache.zip and move .bin files to R:\\inference_phison\\SillyTavern\\",
+    "# Extract SillyTavern_kvcache.zip and move .bin files to R:\\inference_phison\\SillyTavern_kvcache\\",
     "$kvcacheZip = Join-Path $dir 'SillyTavern_kvcache.zip'",
-    "$targetDir = 'R:\\inference_phison\\SillyTavern'",
+    "$targetDir = 'R:\\inference_phison\\SillyTavern_kvcache'",
     "",
     "# Check if R drive exists",
     "$rDriveRoot = 'R:\\'",
@@ -167,7 +167,7 @@
     "        }",
     "    }",
     "",
-    "    # Move .bin files from inference_phison to R:\\inference_phison\\SillyTavern\\",
+    "    # Move .bin files from inference_phison to R:\\inference_phison\\SillyTavern_kvcache\\",
     "    if ($sourcePath) {",
     "        try {",
     "            # Ensure target directory exists",
