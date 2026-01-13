@@ -1,39 +1,23 @@
-param (
-   [string]$svcName = 'W32Time',
-   [int]$delay = 5
-)
-$ErrorActionPreference = 'STOP'
-# 檢查是否已為管理員
-$wp = [Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()
-if (-Not $wp.IsInRole([Security.Principal.WindowsBuiltInRole]"Administrator")) {
-   $rawCmd = $MyInvocation.Line
-   $rawArgs = $rawCmd.Substring($rawCmd.IndexOf('.ps1') + 4)
-   # 處理檔案總管右鍵「用 PowerShell 執行」的特殊指令
-   if ($rawCmd.StartsWith('if')) { $rawArgs = '' }
-   Start-Process Powershell -Verb RunAs -ArgumentList "$PSCommandPath $rawArgs"
-   exit
-}
- 
 $ErrorActionPreference = 'SilentlyContinue'
 
 # Get current PowerShell process ID to exclude it
 $currentPID = $PID
 
-# Target port to stop (Streamlit default is 8501)
-$port = 8501
+# Base directory
+$dir = $PSScriptRoot
+
+# List of directories to check
+$checkPaths = @(
+    $dir,
+    (Join-Path $dir 'utils'),
+    (Join-Path $dir '.venv')
+)
+
+# Normalize paths for comparison
+$checkPathsLower = $checkPaths | ForEach-Object { $_.ToLower().TrimEnd('\') }
 
 # Log file (align with start.log style: append)
 $logPath = Join-Path $PSScriptRoot "stop.log"
-
-function Test-IsAdmin {
-    try {
-        $id = [Security.Principal.WindowsIdentity]::GetCurrent()
-        $p = New-Object Security.Principal.WindowsPrincipal($id)
-        return $p.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-    } catch {
-        return $false
-    }
-}
 
 function Write-Log {
     param(
@@ -53,52 +37,103 @@ function Write-Log {
 
 $scriptPath = $null
 try { $scriptPath = $MyInvocation.MyCommand.Path } catch { $scriptPath = $null }
-$isAdmin = Test-IsAdmin
-Write-Log "Stop requested. Target port=$port. ScriptPID=$currentPID. IsAdmin=$isAdmin" "INFO"
+Write-Log "Stop requested. ScriptPID=$currentPID" "INFO"
 Write-Log "ScriptPath=$scriptPath. PSScriptRoot=$PSScriptRoot" "INFO"
+Write-Log "Check paths: $($checkPaths -join ', ')" "INFO"
 
-# Get PIDs that are listening on the target port
-$pidsToStop = @()
-$detectMethod = ""
+# Get all processes
+$allProcs = Get-CimInstance Win32_Process -ErrorAction SilentlyContinue
 
-try {
-    # Preferred: available on modern Windows/PowerShell
-    $conns = Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction Stop
-    $pidsToStop = $conns | Select-Object -ExpandProperty OwningProcess -Unique
-    $detectMethod = "Get-NetTCPConnection"
-} catch {
-    # Fallback: parse netstat output
-    try {
-        $detectMethod = "netstat"
-        $netstatLines = & netstat -ano -p tcp 2>$null
-        foreach ($line in $netstatLines) {
-            # Examples:
-            #   TCP    0.0.0.0:8501           0.0.0.0:0              LISTENING       1234
-            #   TCP    [::]:8501              [::]:0                 LISTENING       1234
-            if ($line -match "^\s*TCP\s+\S+:\b$port\b\s+\S+\s+LISTENING\s+(\d+)\s*$") {
-                $pid = 0
-                if ([int]::TryParse($matches[1], [ref]$pid)) {
-                    $pidsToStop += $pid
-                }
+# Search for processes in the specified directories
+$procsToStop = @()
+
+foreach ($proc in $allProcs) {
+    # Skip the current PowerShell process
+    if ($proc.ProcessId -eq $currentPID) {
+        continue
+    }
+    
+    $procPath = $proc.ExecutablePath
+    $procCmdLine = $proc.CommandLine
+    $isMatch = $false
+    
+    # Check if process executable is in any of the check paths
+    if ($procPath) {
+        $procPathLower = $procPath.ToLower()
+        foreach ($checkPath in $checkPathsLower) {
+            if ($procPathLower.StartsWith($checkPath + '\') -or $procPathLower -eq $checkPath) {
+                $isMatch = $true
+                Write-Log "Match found (executable path): PID=$($proc.ProcessId), Name=$($proc.Name), Path=$procPath" "INFO"
+                break
             }
         }
-        $pidsToStop = $pidsToStop | Sort-Object -Unique
-    } catch {
-        $pidsToStop = @()
-        $detectMethod = "none"
+    }
+    
+    # Check if command line contains any of the check paths
+    if ($procCmdLine -and -not $isMatch) {
+        $cmdLineLower = $procCmdLine.ToLower()
+        foreach ($checkPath in $checkPathsLower) {
+            if ($cmdLineLower.Contains($checkPath)) {
+                $isMatch = $true
+                $cmdPreview = $procCmdLine.Substring(0, [Math]::Min(100, $procCmdLine.Length))
+                Write-Log "Match found (command line): PID=$($proc.ProcessId), Name=$($proc.Name), CmdLine=$cmdPreview..." "INFO"
+                break
+            }
+        }
+    }
+    
+    # Check process executable location
+    if (-not $isMatch) {
+        try {
+            $procObj = Get-Process -Id $proc.ProcessId -ErrorAction SilentlyContinue
+            if ($procObj -and $procObj.Path) {
+                $procDir = (Split-Path $procObj.Path -Parent).ToLower().TrimEnd('\')
+                foreach ($checkPath in $checkPathsLower) {
+                    if ($procDir -and ($procDir -eq $checkPath -or $procDir.StartsWith($checkPath + '\'))) {
+                        $isMatch = $true
+                        Write-Log "Match found (process directory): PID=$($proc.ProcessId), Name=$($proc.Name), Dir=$procDir" "INFO"
+                        break
+                    }
+                }
+            }
+        } catch {
+            # Ignore errors
+        }
+    }
+    
+    # Check process modules (DLLs) loaded from check paths
+    if (-not $isMatch) {
+        try {
+            $procObj = Get-Process -Id $proc.ProcessId -ErrorAction SilentlyContinue
+            if ($procObj -and $procObj.Modules) {
+                foreach ($module in $procObj.Modules) {
+                    if ($module.FileName) {
+                        $modulePath = $module.FileName.ToLower()
+                        foreach ($checkPath in $checkPathsLower) {
+                            if ($modulePath.StartsWith($checkPath + '\') -or $modulePath -eq $checkPath) {
+                                $isMatch = $true
+                                Write-Log "Match found (loaded module): PID=$($proc.ProcessId), Name=$($proc.Name), Module=$($module.FileName)" "INFO"
+                                break
+                            }
+                        }
+                        if ($isMatch) { break }
+                    }
+                }
+            }
+        } catch {
+            # Ignore errors
+        }
+    }
+    
+    if ($isMatch) {
+        $procsToStop += $proc
     }
 }
 
-# Log detection result
-if (-not $detectMethod) { $detectMethod = "unknown" }
-if ($pidsToStop -and $pidsToStop.Count -gt 0) {
-    Write-Log "Detected listener(s) on port $port via $detectMethod. PID(s)=$($pidsToStop -join ',')" "INFO"
-} else {
-    Write-Log "No listener detected on port $port via $detectMethod." "INFO"
-}
+Write-Log "Found $($procsToStop.Count) process(es) related to checked directories" "INFO"
 
 # Root PIDs to stop (exclude current script PID)
-$rootPids = @($pidsToStop | Where-Object { $_ -and $_ -ne $currentPID } | Sort-Object -Unique)
+$rootPids = @($procsToStop | Select-Object -ExpandProperty ProcessId | Where-Object { $_ -and $_ -ne $currentPID } | Sort-Object -Unique)
 
 # Get all child processes recursively
 function Get-ChildProcesses {
@@ -112,9 +147,9 @@ function Get-ChildProcesses {
     return $children
 }
 
-# Stop all found processes (based on PID, not Win32_Process resolution)
+# Stop all found processes
 if (-not $rootPids -or $rootPids.Count -eq 0) {
-    Write-Log "No process found listening on port $port." "INFO"
+    Write-Log "No related process found in checked directories." "INFO"
     Write-Log "Done! Stopped 0 process(es)." "INFO"
     exit 0
 }
@@ -139,7 +174,7 @@ $allPidsToStop = @($rootPids + ($childProcs | Select-Object -ExpandProperty Proc
     Where-Object { $_ -and $_ -ne $currentPID } |
     Sort-Object -Unique
 
-Write-Log "Found $($rootPids.Count) root process(es) listening on port $port. Stopping $($allPidsToStop.Count) PID(s) total (including children)..." "INFO"
+Write-Log "Found $($rootPids.Count) root process(es) in checked directories. Stopping $($allPidsToStop.Count) PID(s) total (including children)..." "INFO"
 Write-Log "PIDs to stop: $($allPidsToStop -join ', ')" "INFO"
 
 function Kill-Pid {
@@ -148,86 +183,81 @@ function Kill-Pid {
     # Ensure errors are not silently swallowed in this function
     $ErrorActionPreference = 'Continue'
 
-    Write-Log "=== Kill-Pid function called for PID: $ProcessId ===" "INFO"
-
     if ($ProcessId -eq $currentPID) { 
         Write-Log "Skipping current script PID: $ProcessId" "INFO"
         return $false 
     }
 
-    # Try to get friendly process info (best effort)
-    $name = $null
-    $path = $null
-    try {
-        $gp = Get-Process -Id $ProcessId -ErrorAction SilentlyContinue
-        if ($gp) { 
-            $name = $gp.ProcessName 
-            $path = $gp.Path
-        }
-    } catch {
-        Write-Log "Could not get process info for PID $ProcessId : $($_.Exception.Message)" "WARN"
+    # Check if process exists before attempting to kill
+    $gp = Get-Process -Id $ProcessId -ErrorAction SilentlyContinue
+    if (-not $gp) {
+        Write-Log "Process $ProcessId already terminated (skipping)" "INFO"
+        return $true
     }
 
+    # Get friendly process info
+    $name = $gp.ProcessName
+    $path = $gp.Path
     $label = if ($name) { "$name (PID: $ProcessId)" } else { "PID: $ProcessId" }
+    
     Write-Log "Attempting to stop ${label} ..." "INFO"
     if ($path) { Write-Log "Process path: $path" "INFO" }
 
-    # Attempt Stop-Process (may fail without admin)
+    # Attempt Stop-Process
     $stopProcessSuccess = $false
     try {
-        Write-Log "Trying Stop-Process -Id $ProcessId -Force ..." "INFO"
         Stop-Process -Id $ProcessId -Force -ErrorAction Stop
         $stopProcessSuccess = $true
         Write-Log "Stop-Process succeeded for $label" "INFO"
     } catch {
         Write-Log "Stop-Process failed for ${label}: $($_.Exception.Message)" "ERROR"
-        Write-Log "Stop-Process error type: $($_.Exception.GetType().FullName)" "ERROR"
-    }
-
-    # Always attempt taskkill as stronger fallback; capture output for debugging
-    $taskkillSuccess = $false
-    try {
-        Write-Log "Trying taskkill /F /T /PID $ProcessId ..." "INFO"
-        $tk = & taskkill /F /T /PID $ProcessId 2>&1
-        $taskkillExitCode = $LASTEXITCODE
-        Write-Log "taskkill exit code: $taskkillExitCode" "INFO"
-        
-        if ($tk) {
-            foreach ($line in $tk) {
-                Write-Log "taskkill output: $($line.ToString())" "INFO"
-            }
-        } else {
-            Write-Log "taskkill returned no output for $label" "INFO"
-        }
-        
-        if ($taskkillExitCode -eq 0) {
-            $taskkillSuccess = $true
-            Write-Log "taskkill succeeded for $label" "INFO"
-        } else {
-            Write-Log "taskkill failed with exit code $taskkillExitCode for $label" "ERROR"
-        }
-    } catch {
-        Write-Log "taskkill threw exception for ${label}: $($_.Exception.Message)" "ERROR"
     }
 
     # Wait a moment for process to terminate
-    Start-Sleep -Milliseconds 500
+    Start-Sleep -Milliseconds 300
 
-    # Confirm whether process still exists
+    # Check if process still exists
     $stillExists = $false
     try {
         $p2 = Get-Process -Id $ProcessId -ErrorAction SilentlyContinue
         if ($p2) { 
-            $stillExists = $true 
-            Write-Log "Process still exists after kill attempts: $label (Name: $($p2.ProcessName))" "ERROR"
+            $stillExists = $true
+        }
+    } catch {}
+
+    # Only use taskkill if Stop-Process failed and process still exists
+    if ($stillExists -and -not $stopProcessSuccess) {
+        Write-Log "Process still running, trying taskkill /F /T /PID $ProcessId ..." "WARN"
+        try {
+            $tk = & taskkill /F /T /PID $ProcessId 2>&1
+            $taskkillExitCode = $LASTEXITCODE
+            
+            if ($taskkillExitCode -eq 0) {
+                Write-Log "taskkill succeeded for $label" "INFO"
+                Start-Sleep -Milliseconds 300
+            } else {
+                Write-Log "taskkill failed with exit code $taskkillExitCode for $label" "ERROR"
+            }
+        } catch {
+            Write-Log "taskkill threw exception for ${label}: $($_.Exception.Message)" "ERROR"
+        }
+    }
+
+    # Final verification
+    Start-Sleep -Milliseconds 200
+    $stillExists = $false
+    try {
+        $p3 = Get-Process -Id $ProcessId -ErrorAction SilentlyContinue
+        if ($p3) { 
+            $stillExists = $true
+            Write-Log "FINAL RESULT: Process still running after all attempts: $label" "ERROR"
         }
     } catch {}
 
     if ($stillExists) {
-        Write-Log "FINAL RESULT: Process still running after all kill attempts: $label" "ERROR"
         return $false
     } else {
-        Write-Log "FINAL RESULT: Process terminated successfully: $label" "INFO"
+        Write-Log "Successfully terminated: $label" "INFO"
         return $true
     }
 }
@@ -248,66 +278,4 @@ foreach ($procId in $allPidsToStop) {
     }
 }
 
-# Verify port is no longer listening
-try {
-    $maxTries = 6
-    $stillPids = @()
-    for ($i = 1; $i -le $maxTries; $i++) {
-        $still = Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue
-        if ($still) {
-            $stillPids = $still | Select-Object -ExpandProperty OwningProcess -Unique
-            Start-Sleep -Milliseconds 500
-        } else {
-            $stillPids = @()
-            break
-        }
-    }
-
-    if ($stillPids -and $stillPids.Count -gt 0) {
-        Write-Log "WARNING: Port $port still appears to be listening. PID(s)=$($stillPids -join ',')" "WARN"
-        Write-Log "Tip: try running PowerShell as Administrator (some processes can't be killed without elevation)." "WARN"
-    } else {
-        Write-Log "Verified: port $port is not listening." "INFO"
-    }
-} catch {
-    # If Get-NetTCPConnection isn't available, skip verification silently
-}
-
-# Additional cleanup: find and kill orphaned Streamlit/uvicorn processes
-Write-Log "Searching for orphaned Streamlit/Python processes..." "INFO"
-$streamlitProcs = @()
-try {
-    # Look for processes with "streamlit" in command line
-    $allProcs = Get-CimInstance Win32_Process -Filter "Name='python.exe' OR Name='pythonw.exe' OR Name='uv.exe'" -ErrorAction SilentlyContinue
-    foreach ($proc in $allProcs) {
-        $cmdLine = $proc.CommandLine
-        if ($cmdLine -and ($cmdLine -like "*streamlit*" -or $cmdLine -like "*app.py*" -or $cmdLine -like "*uvicorn*")) {
-            if ($proc.ProcessId -ne $currentPID) {
-                $streamlitProcs += $proc.ProcessId
-                Write-Log "Found orphaned process: PID=$($proc.ProcessId), Name=$($proc.Name), CommandLine=$($cmdLine.Substring(0, [Math]::Min(100, $cmdLine.Length)))..." "INFO"
-            }
-        }
-    }
-} catch {
-    Write-Log "Could not search for orphaned processes: $($_.Exception.Message)" "WARN"
-}
-
-if ($streamlitProcs -and $streamlitProcs.Count -gt 0) {
-    Write-Log "Found $($streamlitProcs.Count) orphaned Streamlit/Python process(es). Cleaning up..." "INFO"
-    foreach ($orphanPid in $streamlitProcs) {
-        try {
-            $ok = Kill-Pid -ProcessId $orphanPid
-            if ($ok) {
-                Write-Log "Cleaned up orphaned PID ${orphanPid}: success" "INFO"
-            } else {
-                Write-Log "Could not clean up orphaned PID ${orphanPid}: failed" "WARN"
-            }
-        } catch {
-            Write-Log "Exception cleaning up orphaned PID ${orphanPid}: $($_.Exception.Message)" "ERROR"
-        }
-    }
-} else {
-    Write-Log "No orphaned Streamlit/Python processes found." "INFO"
-}
-
-Write-Log "Done! Stopped $($allPidsToStop.Count) process(es) + $($streamlitProcs.Count) orphaned process(es)." "INFO"
+Write-Log "Done! Stopped $($allPidsToStop.Count) process(es)." "INFO"
