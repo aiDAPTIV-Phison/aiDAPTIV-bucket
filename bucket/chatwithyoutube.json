@@ -1,0 +1,27 @@
+{
+    "version": "1.0.1",
+    "description": "Chat with YouTube videos to learn faster. This integration ingests a video's transcript, builds searchable context, and enables instant Q&A, summaries, and key takeaways —— perfect for personal study, creators, and anyone who wants to turn long videos into clear notes.",
+    "homepage": "https://github.com/aiDAPTIV-Phison/aiDAPTIV-Integration-Chat-with-Youtube",
+    "url": [
+        "http://192.168.54.46:18301/yt/aiDAPTIV-Integration-Chat-with-Youtube.7z",
+        "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/chatwithyoutube/chatwithyoutube/start.ps1",
+        "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/chatwithyoutube/chatwithyoutube/stop.ps1",
+        "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/chatwithyoutube/chatwithyoutube/status.ps1"
+    ],
+    "hash": [
+        "42421e28e56393fb52ed33d2ae815c5893fdaf7a898cfb933ee7f6b2666c6101",
+        "567a5e5488b6fea0a489347091c6961cad5ed751b680e9d282ccfc0cfe40de68",
+        "f7ad5b11f4c091c0083b026af36b4cf1768a0275ec03bd351c8e96bca50ebbb9",
+        "20cd9f4e77dfa93e006f5979f500590bb32c7dab2a733e85df375e099cb810d5"
+    ],
+    "installer": {
+        "script": [
+            "& \"$dir\\setup.bat\" /S"
+        ]
+    },
+    "post_install": [],
+    "pre_uninstall": [
+        "if (Test-Path \"$dir\\stop.ps1\") { & \"$dir\\stop.ps1\" | Out-Null; Start-Sleep -Seconds 2 }",
+        "if (Test-Path \"$dir\\status.ps1\") { Remove-Item -Path \"$dir\\status.ps1\" -Force -ErrorAction SilentlyContinue }"
+    ]
+}
