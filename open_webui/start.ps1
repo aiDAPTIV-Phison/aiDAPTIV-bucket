@@ -123,8 +123,6 @@ Write-Host "Services Started Successfully!"
 Write-Host "========================================"
 Write-Host "Open WebUI: http://127.0.0.1:$port"
 Write-Host "KM Service: http://127.0.0.1:$($env:API_PORT)"
-Write-Host "Two console windows have been opened for each service."
-Write-Host "Close those windows to stop the services."
 
 # Health check and auto-open browser
 $healthUrl = "http://127.0.0.1:$port/health"
@@ -132,6 +130,8 @@ $healthUrl2 = "http://127.0.0.1:$($env:API_PORT)/health"
 $attemptDelay = 2
 $attempt = 0
 $isHealthy = $false
+$timeoutSeconds = 180  # 3 minutes timeout
+$startTime = Get-Date
 
 Write-Host "Waiting for Open WebUI to start..."
 
@@ -139,10 +139,26 @@ while (-not $isHealthy) {
     Start-Sleep -Seconds $attemptDelay
     $attempt++
     
+    # Check if timeout exceeded (3 minutes)
+    $elapsedSeconds = ((Get-Date) - $startTime).TotalSeconds
+    if ($elapsedSeconds -ge $timeoutSeconds -and $OpenBrowser) {
+        Add-Type -AssemblyName System.Windows.Forms
+        [System.Windows.Forms.MessageBox]::Show(
+            "Timeout: Service failed to start within 3 minutes.`n`nPlease check`n$healthUrl`n$healthUrl2`n$env:LLM_URL/chat/completions`n$env:EMBEDDING_URL/embeddings",
+            "Open WebUI start failed",
+            [System.Windows.Forms.MessageBoxButtons]::OK,
+            [System.Windows.Forms.MessageBoxIcon]::Error
+        )
+        Write-Host "Timeout: Service failed to start within 3 minutes."
+        break
+    }
+    
     try {
         $response = Invoke-WebRequest -Uri $healthUrl -Method Get -TimeoutSec 2 -ErrorAction Stop
         $response2 = Invoke-WebRequest -Uri $healthUrl2 -Method Get -TimeoutSec 2 -ErrorAction Stop
-        if ($response.StatusCode -eq 200 -and $response2.StatusCode -eq 200) {
+        $response3 = Invoke-WebRequest -Uri "$env:LLM_URL/chat/completions" -Method Post -ContentType 'application/json' -Body (@{model='';messages=@(@{role='user';content='test'})} | ConvertTo-Json -Compress) -ErrorAction Stop
+        $response4 = Invoke-WebRequest -Uri "$env:EMBEDDING_URL/embeddings" -Method Post -ContentType 'application/json' -Body (@{model='';input='test'} | ConvertTo-Json -Compress) -ErrorAction Stop
+        if ($response.StatusCode -eq 200 -and $response2.StatusCode -eq 200 -and $response3.StatusCode -eq 200 -and $response4.StatusCode -eq 200) {
             $isHealthy = $true
             Write-Host "Open WebUI is ready!"
             if ($OpenBrowser) {
