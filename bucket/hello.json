@@ -9,13 +9,7 @@
     "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/meetily/stop.ps1",
     "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/meetily/status.ps1"
   ],
-  "hash": [
-    "087f4f2dc465c57c1fedc2f473fa7521707c690d5aa33bcf60b055e2cda6d6ec",
-    "60ED5BC3DD14EEA856493D334349B405782DDCAF0028D4B5DF4088345FBA2EFE",
-    "2F5ABF1A65F959693F80F995C812DB671C976CACCB49D86556ABC726867FA6BF",
-    "E651E8DDB3BF04B6067AFD0177ABD1C920889ACB45278E32BB5BDBD964C80351",
-    "E8D36F269522C6EB4EB5BC7397EFDACED18CFE5F394912B8F725408EDC0BE7DD"
-  ],
+  "hash": [],
   "installer": {
     "script": ["& \"$dir\\meetily_0.1.1_x64-setup.exe\" /S /D=\"$dir\\meetily\""]
   },
