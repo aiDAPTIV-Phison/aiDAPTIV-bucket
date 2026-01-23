@@ -2,9 +2,16 @@
   "version": "1.0.2",
   "description": "A privacy-first AI meeting assistant that captures, transcribes, and summarizes meetings entirely on your infrastructure. Built by expert AI engineers passionate about data sovereignty and open source solutions. Perfect for enterprises that need advanced meeting intelligence without compromising on privacy, compliance, or control.",
   "homepage": "https://github.com/aiDAPTIV-Phison/aiDAPTIV-Integration-meeting-minutes",
-  "url": [],
+  "url": [
+    "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin",
+    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/meetily/start.ps1",
+    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/meetily/stop.ps1",
+    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/meetily/status.ps1"
+  ],
   "hash": [],
-  "installer": {},
+  "installer": {
+    "script": [""]
+  },
   "post_install": [],
   "pre_uninstall": []
 }
