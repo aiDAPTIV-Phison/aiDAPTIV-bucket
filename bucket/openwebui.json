@@ -3,16 +3,16 @@
   "description": "Open WebUI is an extensible, feature-rich, and user-friendly self-hosted AI platform designed to operate entirely offline. It supports various LLM runners like Ollama and OpenAI-compatible APIs, with built-in inference engine for RAG, making it a powerful AI deployment solution.",
   "homepage": "https://github.com/aiDAPTIV-Phison/aiDAPTIV-Integration-open-webui",
   "url": [
-    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/open_webui/start.ps1",
-    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/open_webui/stop.ps1",
-    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/open_webui/status.ps1",
-    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/open_webui/config.txt",
+    "https://raw.githubusercontent.com/aiDAPTIV-Phison/aiDAPTIV-bucket/3a8bdf1733d2f82f03c7baf5f6f98a1302987569/open_webui/start.ps1",
+    "https://raw.githubusercontent.com/aiDAPTIV-Phison/aiDAPTIV-bucket/3a8bdf1733d2f82f03c7baf5f6f98a1302987569/open_webui/stop.ps1",
+    "https://raw.githubusercontent.com/aiDAPTIV-Phison/aiDAPTIV-bucket/3a8bdf1733d2f82f03c7baf5f6f98a1302987569/open_webui/status.ps1",
+    "https://raw.githubusercontent.com/aiDAPTIV-Phison/aiDAPTIV-bucket/3a8bdf1733d2f82f03c7baf5f6f98a1302987569/open_webui/config.txt",
     "https://phison-software-bucket.s3.ap-northeast-1.amazonaws.com/aiDAPTIV_Application/Phison-ReuseAppMarket/Apps/Open-webui/open-webui.zip",
     "https://phison-software-bucket.s3.ap-northeast-1.amazonaws.com/aiDAPTIV_Application/Phison-ReuseAppMarket/Apps/Open-webui/open-webui_default_collection.zip",
     "https://phison-software-bucket.s3.ap-northeast-1.amazonaws.com/aiDAPTIV_Application/Phison-ReuseAppMarket/Apps/Open-webui/openwebui_default_kv_cache.zip"
   ],
   "hash": [
-    "0752c970d50aba2be375b37bca2d73925e23e016a1fe75be3cef6b68f760bc49",
+    "0a29be1e9b9ad115853f7a6f471d00d389009b9aec85d1fb0a17d86997c5e64a",
     "e107f8ff486156108b1d10193d2732bfa258af5edac3586c72b35dc294b28ba4",
     "a87497cc249c7493c69b5f2100ddeadb07f34897fa7de03f2ebe0c62094b6f9f",
     "4c87ca90481ee55521b0d67aa1f3e27154298750646f772a04a6201f11488428",
