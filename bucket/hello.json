@@ -1,0 +1,31 @@
+{
+  "version": "1.0.1",
+  "description": "A privacy-first AI meeting assistant that captures, transcribes, and summarizes meetings entirely on your infrastructure. Built by expert AI engineers passionate about data sovereignty and open source solutions. Perfect for enterprises that need advanced meeting intelligence without compromising on privacy, compliance, or control.",
+  "homepage": "https://github.com/aiDAPTIV-Phison/aiDAPTIV-Integration-meeting-minutes",
+  "url": [
+    "https://phison-software-bucket.s3.ap-northeast-1.amazonaws.com/aiDAPTIV_Application/Meetily/meetily_0.1.1_x64-setup.exe",
+    "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin",
+    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/meetily/start.ps1",
+    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/meetily/stop.ps1",
+    "https://github.com/aiDAPTIV-Phison/aiDAPTIV-bucket/raw/refs/heads/main/meetily/status.ps1"
+  ],
+  "hash": [
+    "087f4f2dc465c57c1fedc2f473fa7521707c690d5aa33bcf60b055e2cda6d6ec",
+    "60ED5BC3DD14EEA856493D334349B405782DDCAF0028D4B5DF4088345FBA2EFE",
+    "2F5ABF1A65F959693F80F995C812DB671C976CACCB49D86556ABC726867FA6BF",
+    "E651E8DDB3BF04B6067AFD0177ABD1C920889ACB45278E32BB5BDBD964C80351",
+    "E8D36F269522C6EB4EB5BC7397EFDACED18CFE5F394912B8F725408EDC0BE7DD"
+  ],
+  "installer": {
+    "script": ["& \"$dir\\meetily_0.1.1_x64-setup.exe\" /S /D=\"$dir\\meetily\""]
+  },
+  "post_install": [
+    "New-Item -ItemType Directory -Force -Path \"$env:APPDATA\\com.meetily.ai\\models\" | Out-Null",
+    "Copy-Item -Path \"$dir\\ggml-base.bin\" -Destination \"$env:APPDATA\\com.meetily.ai\\ggml-base.bin\""
+  ],
+  "pre_uninstall": [
+    "if (Test-Path \"$dir\\stop.ps1\") { & \"$dir\\stop.ps1\" | Out-Null; Start-Sleep -Seconds 2 }",
+    "if (Test-Path \"$dir\\meetily\\uninstall.exe\") { Start-Process -Wait -FilePath \"$dir\\meetily\\uninstall.exe\" -ArgumentList '/S' }",
+    "if (Test-Path \"$dir\\status.ps1\") { Remove-Item -Path \"$dir\\status.ps1\" -Force -ErrorAction SilentlyContinue }"
+  ]
+}
