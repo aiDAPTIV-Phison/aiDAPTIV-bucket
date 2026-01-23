@@ -156,14 +156,18 @@ while (-not $isHealthy) {
     try {
         $response = Invoke-WebRequest -Uri $healthUrl -Method Get -TimeoutSec 2 -ErrorAction Stop
         $response2 = Invoke-WebRequest -Uri $healthUrl2 -Method Get -TimeoutSec 2 -ErrorAction Stop
-        $response3 = Invoke-WebRequest -Uri "$env:LLM_URL/chat/completions" -Method Post -ContentType 'application/json' -Body (@{model='';messages=@(@{role='user';content='test'})} | ConvertTo-Json -Compress) -ErrorAction Stop
-        $response4 = Invoke-WebRequest -Uri "$env:EMBEDDING_URL/embeddings" -Method Post -ContentType 'application/json' -Body (@{model='';input='test'} | ConvertTo-Json -Compress) -ErrorAction Stop
-        if ($response.StatusCode -eq 200 -and $response2.StatusCode -eq 200 -and $response3.StatusCode -eq 200 -and $response4.StatusCode -eq 200) {
+        if ($response.StatusCode -eq 200 -and $response2.StatusCode -eq 200) {
             $isHealthy = $true
             Write-Host "Open WebUI is ready!"
-            if ($OpenBrowser) {
-                Start-Process "http://127.0.0.1:$port"
-                Write-Host "Browser opened successfully."
+            if ($OpenBrowser) {            
+                $response3 = Invoke-WebRequest -Uri "$env:LLM_URL/chat/completions" -Method Post -ContentType 'application/json' -Body (@{model='';messages=@(@{role='user';content='test'})} | ConvertTo-Json -Compress) -ErrorAction Stop
+                $response4 = Invoke-WebRequest -Uri "$env:EMBEDDING_URL/embeddings" -Method Post -ContentType 'application/json' -Body (@{model='';input='test'} | ConvertTo-Json -Compress) -ErrorAction Stop
+                if ($response3.StatusCode -eq 200 -and $response4.StatusCode -eq 200) {
+                    Start-Process "http://127.0.0.1:$port"
+                    Write-Host "Browser opened successfully."
+                } else{
+                    $isHealthy = $false
+                }
             } else {
                 Write-Host "Browser opening is disabled."
             }
